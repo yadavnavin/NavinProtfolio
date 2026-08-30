@@ -1,5 +1,6 @@
 import { SeeMyUiDestination } from "@/components/projects/seemyui-destination";
 import { TopologyDiagram } from "@/components/topology/topology-diagram";
+import { HeroProjectTransition } from "@/components/transitions/hero-project-transition";
 
 export default function Home() {
   return (
@@ -25,21 +26,29 @@ export default function Home() {
           </nav>
         </header>
 
-        <section className="hero" aria-labelledby="hero-title">
-          <div className="hero-copy">
-            <h1 id="hero-title" className="hero-title">
-              <span>Products on the surface.</span>
-              <span>Systems underneath.</span>
-            </h1>
-            <p className="hero-supporting-copy">
-              Software engineer building products, systems, and developer tools.
-            </p>
-          </div>
+        <HeroProjectTransition
+          hero={
+            <section className="hero" aria-labelledby="hero-title">
+              <div className="hero-copy">
+                <h1
+                  id="hero-title"
+                  className="hero-title"
+                  data-transition-headline
+                >
+                  <span>Products on the surface.</span>
+                  <span>Systems underneath.</span>
+                </h1>
+                <p className="hero-supporting-copy">
+                  Software engineer building products, systems, and developer
+                  tools.
+                </p>
+              </div>
 
-          <TopologyDiagram />
-        </section>
-
-        <SeeMyUiDestination />
+              <TopologyDiagram />
+            </section>
+          }
+          project={<SeeMyUiDestination />}
+        />
       </div>
     </main>
   );

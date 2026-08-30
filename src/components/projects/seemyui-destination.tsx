@@ -10,6 +10,7 @@ export function SeeMyUiDestination() {
       id="work"
       className="project-destination"
       aria-labelledby="seemyui-title"
+      data-project-destination
     >
       <div className="project-backbone">
         <ol aria-label="System topology context">

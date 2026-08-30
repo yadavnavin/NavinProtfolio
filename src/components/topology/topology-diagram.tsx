@@ -115,6 +115,7 @@ export function TopologyDiagram() {
               className="topology-stage"
               data-active={isActive || undefined}
               data-previewed={isPreviewed || undefined}
+              data-topology-stage={stage.id}
               key={stage.id}
             >
               <button
