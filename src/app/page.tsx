@@ -1,3 +1,4 @@
+import { AboutExperience } from "@/components/about/about-experience";
 import { EngineeringCapabilities } from "@/components/capabilities/engineering-capabilities";
 import { DocumentFanout } from "@/components/projects/document-fanout";
 import { MultiTenantIsolation } from "@/components/projects/multi-tenant-isolation";
@@ -57,6 +58,7 @@ export default function Home() {
         <WorkflowSequence />
         <DocumentFanout />
         <EngineeringCapabilities />
+        <AboutExperience />
       </div>
     </main>
   );
