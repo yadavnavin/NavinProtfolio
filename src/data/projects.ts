@@ -61,6 +61,24 @@ export type WorkflowProjectChapter = {
   technologies: readonly string[];
 };
 
+export type DocumentMode = {
+  id: "pdf" | "presentation" | "spreadsheet" | "export-ai";
+  label: string;
+  direction: string;
+  description: string;
+};
+
+export type DocumentProjectChapter = {
+  name: string;
+  disclosure: string;
+  purpose: string;
+  thesis: string;
+  atlasBranches: readonly ["Interface", "Services", "Automation"];
+  modes: readonly [DocumentMode, DocumentMode, DocumentMode, DocumentMode];
+  experience: readonly string[];
+  technologies: readonly string[];
+};
+
 export const seeMyUiProject: ProjectDestination = {
   name: "SeeMyUI",
   purpose:
@@ -170,4 +188,46 @@ export const workflowProject: WorkflowProjectChapter = {
     },
   ],
   technologies: ["React", "ASP.NET Core"],
+};
+
+export const documentProject: DocumentProjectChapter = {
+  name: "Browser Document Platform",
+  disclosure: "Employer-owned work presented anonymously.",
+  purpose:
+    "Experience working across browser-based editors, document-specific behavior, backend processing, and generated outputs.",
+  thesis: "One editing surface. Several document workflows.",
+  atlasBranches: ["Interface", "Services", "Automation"],
+  modes: [
+    {
+      id: "pdf",
+      label: "PDF",
+      direction: "Page output",
+      description: "Page-oriented editing and document output.",
+    },
+    {
+      id: "presentation",
+      label: "Presentation",
+      direction: "Slide composition",
+      description: "Frame-based composition for presentation workflows.",
+    },
+    {
+      id: "spreadsheet",
+      label: "Spreadsheet",
+      direction: "Structured cells",
+      description: "Grid-oriented editing for structured document work.",
+    },
+    {
+      id: "export-ai",
+      label: "Export / AI-assisted",
+      direction: "Generation and transformation",
+      description: "File generation and broadly assisted document workflows.",
+    },
+  ],
+  experience: [
+    "Interactive editor interfaces",
+    "Frontend editor state",
+    "Backend and export processing",
+    "AI-assisted functionality",
+  ],
+  technologies: ["React", "TypeScript", "ASP.NET Core"],
 };

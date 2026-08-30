@@ -1,3 +1,4 @@
+import { DocumentFanout } from "@/components/projects/document-fanout";
 import { MultiTenantIsolation } from "@/components/projects/multi-tenant-isolation";
 import { SeeMyUiDestination } from "@/components/projects/seemyui-destination";
 import { WorkflowSequence } from "@/components/projects/workflow-sequence";
@@ -53,6 +54,7 @@ export default function Home() {
         />
         <MultiTenantIsolation />
         <WorkflowSequence />
+        <DocumentFanout />
       </div>
     </main>
   );
