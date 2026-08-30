@@ -4131,3 +4131,309 @@
     font-size: 0.875rem;
   }
 }
+
+.contact-footer {
+  position: relative;
+  min-height: min(62rem, 100svh);
+  padding-top: clamp(8rem, 14vw, 15rem);
+  padding-bottom: clamp(2rem, 4vw, 4rem);
+  border-top: 1px solid var(--rule);
+}
+
+.contact-route {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: clamp(8rem, 14vw, 15rem);
+  color: var(--blueprint-muted);
+}
+
+.contact-route::before {
+  position: absolute;
+  top: 0;
+  bottom: 2.75rem;
+  left: 83.333%;
+  width: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.contact-route::after {
+  position: absolute;
+  right: 8.333%;
+  bottom: 2.75rem;
+  left: 83.333%;
+  height: 1px;
+  background: currentColor;
+  content: "";
+}
+
+.contact-route-origin,
+.contact-route-turn,
+.contact-route-terminal {
+  position: absolute;
+  z-index: 1;
+  display: block;
+  width: 0.625rem;
+  height: 0.625rem;
+  background: var(--canvas);
+}
+
+.contact-route-origin {
+  top: -0.3125rem;
+  left: calc(83.333% - 0.3125rem);
+  border: 1px solid var(--blueprint-muted);
+}
+
+.contact-route-turn {
+  bottom: 2.4375rem;
+  left: calc(83.333% - 0.3125rem);
+  border: 1px solid var(--blueprint-muted);
+}
+
+.contact-route-terminal {
+  right: calc(8.333% - 0.3125rem);
+  bottom: 2.4375rem;
+  border: 1px solid var(--active);
+  box-shadow: inset 0 0 0 2px var(--canvas);
+  background: var(--active);
+}
+
+.contact-composition {
+  display: grid;
+  min-height: clamp(27rem, 45vw, 43rem);
+  align-items: start;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(1rem, 2vw, 2.5rem);
+}
+
+.contact-composition h2 {
+  max-width: 14ch;
+  margin: 0;
+  font-size: clamp(4rem, 8.6vw, 10rem);
+  font-weight: 590;
+  letter-spacing: -0.065em;
+  line-height: 0.86;
+  text-wrap: balance;
+  grid-column: 1 / span 8;
+}
+
+.contact-channel {
+  align-self: start;
+  padding-top: 1rem;
+  border-top: 1px solid var(--ink);
+  grid-column: 9 / -1;
+}
+
+.contact-channel-label {
+  color: var(--blueprint);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.contact-email {
+  display: block;
+  width: fit-content;
+  margin-top: clamp(2rem, 3vw, 3rem);
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: 570;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-decoration-color: var(--blueprint-muted);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.35em;
+  transition:
+    color 160ms ease-out,
+    text-decoration-color 160ms ease-out,
+    transform 160ms ease-out;
+}
+
+.contact-email:hover,
+.contact-email:focus-visible {
+  color: var(--active);
+  text-decoration-color: var(--active);
+  transform: translateX(0.25rem);
+}
+
+.contact-email:focus-visible,
+.contact-social-links a:focus-visible,
+.footer-metadata a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 0.35rem;
+}
+
+.contact-pending {
+  display: flex;
+  max-width: 19rem;
+  margin: clamp(2rem, 3vw, 3rem) 0 0;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.contact-pending > span {
+  width: 0.625rem;
+  height: 0.625rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--blueprint);
+  background: var(--canvas);
+}
+
+.contact-social-links {
+  display: flex;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.contact-social-links a,
+.footer-metadata a {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  transition:
+    color 160ms ease-out,
+    text-decoration-color 160ms ease-out;
+}
+
+.contact-social-links a:hover,
+.contact-social-links a:focus-visible,
+.footer-metadata a:hover,
+.footer-metadata a:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+.footer-metadata {
+  display: flex;
+  margin-top: clamp(7rem, 11vw, 11rem);
+  padding-top: 1rem;
+  border-top: 1px solid var(--ink);
+  justify-content: space-between;
+  gap: 2rem;
+  color: var(--blueprint);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.footer-metadata p,
+.footer-metadata nav {
+  display: flex;
+  margin: 0;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+
+.footer-metadata nav {
+  color: var(--ink);
+}
+
+@media (max-width: 47.999rem) {
+  .contact-footer {
+    min-height: 100svh;
+    padding-top: 8rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .contact-route {
+    top: auto;
+    bottom: 8.5rem;
+    height: 6rem;
+  }
+
+  .contact-route::before {
+    top: 0;
+    bottom: 1rem;
+    left: 3rem;
+  }
+
+  .contact-route::after {
+    right: 0.3125rem;
+    bottom: 1rem;
+    left: 3rem;
+  }
+
+  .contact-route-origin {
+    top: -0.3125rem;
+    left: 2.6875rem;
+  }
+
+  .contact-route-turn {
+    bottom: 0.6875rem;
+    left: 2.6875rem;
+  }
+
+  .contact-route-terminal {
+    right: 0;
+    bottom: 0.6875rem;
+  }
+
+  .contact-composition {
+    display: block;
+    min-height: 0;
+    padding-left: 3rem;
+  }
+
+  .contact-composition h2 {
+    max-width: 9ch;
+    font-size: clamp(3.25rem, 15vw, 5rem);
+    line-height: 0.88;
+  }
+
+  .contact-channel {
+    margin-top: clamp(5rem, 18vw, 7rem);
+  }
+
+  .contact-pending {
+    min-height: 2.75rem;
+    font-size: 1rem;
+  }
+
+  .contact-social-links {
+    gap: 1.25rem 2rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-social-links a,
+  .footer-metadata nav a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+
+  .footer-metadata {
+    margin-top: 13rem;
+    padding-top: 1.25rem;
+    flex-direction: column-reverse;
+    gap: 1.5rem;
+  }
+
+  .footer-metadata p {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .footer-metadata nav {
+    justify-content: space-between;
+    gap: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-email,
+  .contact-social-links a,
+  .footer-metadata a {
+    transition: none;
+  }
+}

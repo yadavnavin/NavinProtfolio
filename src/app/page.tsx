@@ -1,5 +1,6 @@
 import { AboutExperience } from "@/components/about/about-experience";
 import { EngineeringCapabilities } from "@/components/capabilities/engineering-capabilities";
+import { ContactFooter } from "@/components/contact/contact-footer";
 import { DocumentFanout } from "@/components/projects/document-fanout";
 import { MultiTenantIsolation } from "@/components/projects/multi-tenant-isolation";
 import { SeeMyUiDestination } from "@/components/projects/seemyui-destination";
@@ -59,6 +60,7 @@ export default function Home() {
         <DocumentFanout />
         <EngineeringCapabilities />
         <AboutExperience />
+        <ContactFooter />
       </div>
     </main>
   );
