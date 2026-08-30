@@ -1,3 +1,4 @@
+import { MultiTenantIsolation } from "@/components/projects/multi-tenant-isolation";
 import { SeeMyUiDestination } from "@/components/projects/seemyui-destination";
 import { TopologyDiagram } from "@/components/topology/topology-diagram";
 import { HeroProjectTransition } from "@/components/transitions/hero-project-transition";
@@ -49,6 +50,7 @@ export default function Home() {
           }
           project={<SeeMyUiDestination />}
         />
+        <MultiTenantIsolation />
       </div>
     </main>
   );

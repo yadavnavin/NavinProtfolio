@@ -20,6 +20,24 @@ export type ProjectDestination = {
   annotations: readonly ProjectAnnotation[];
 };
 
+export type ProjectResponsibility = {
+  title: string;
+  description: string;
+};
+
+export type ConfidentialProjectChapter = {
+  name: string;
+  disclosure: string;
+  purpose: string;
+  thesis: string;
+  atlasBranches: readonly ["Services", "Data"];
+  sharedLayers: readonly [string, string];
+  laneLabel: string;
+  boundaryLabel: string;
+  responsibilities: readonly ProjectResponsibility[];
+  technologies: readonly string[];
+};
+
 export const seeMyUiProject: ProjectDestination = {
   name: "SeeMyUI",
   purpose:
@@ -50,4 +68,39 @@ export const seeMyUiProject: ProjectDestination = {
       target: "viewport",
     },
   ],
+};
+
+export const multiTenantProject: ConfidentialProjectChapter = {
+  name: "Multi-tenant Business Platform",
+  disclosure: "Employer-owned work presented anonymously.",
+  purpose:
+    "Experience building a business application where multiple organizations share one product while identity, permissions, and data remain separated by tenant context.",
+  thesis: "One product can be shared. Its operating boundaries cannot.",
+  atlasBranches: ["Services", "Data"],
+  sharedLayers: ["Shared platform", "Access / identity"],
+  laneLabel: "Tenant context",
+  boundaryLabel: "Boundary retained",
+  responsibilities: [
+    {
+      title: "Tenant-aware behavior",
+      description:
+        "Application behavior shaped by the active organization context.",
+    },
+    {
+      title: "Identity and permissions",
+      description:
+        "Authentication, authorization, and role-based access working together.",
+    },
+    {
+      title: "Data-backed workflows",
+      description:
+        "REST APIs and relational data supporting business processes.",
+    },
+    {
+      title: "Work beyond the request",
+      description:
+        "Real-time features, notifications, and background processing.",
+    },
+  ],
+  technologies: ["ASP.NET Core", "React", "SQL Server"],
 };
