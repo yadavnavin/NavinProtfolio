@@ -38,6 +38,29 @@ export type ConfidentialProjectChapter = {
   technologies: readonly string[];
 };
 
+export type WorkflowStage = {
+  id: "form" | "submission" | "trigger" | "workflow" | "action";
+  label: string;
+  phase: "Input" | "Event" | "Decision" | "Execution" | "Outcome";
+  responsibility: string;
+};
+
+export type WorkflowProjectChapter = {
+  name: string;
+  disclosure: string;
+  purpose: string;
+  thesis: string;
+  atlasBranch: "Automation";
+  stages: readonly [
+    WorkflowStage,
+    WorkflowStage,
+    WorkflowStage,
+    WorkflowStage,
+    WorkflowStage,
+  ];
+  technologies: readonly string[];
+};
+
 export const seeMyUiProject: ProjectDestination = {
   name: "SeeMyUI",
   purpose:
@@ -103,4 +126,48 @@ export const multiTenantProject: ConfidentialProjectChapter = {
     },
   ],
   technologies: ["ASP.NET Core", "React", "SQL Server"],
+};
+
+export const workflowProject: WorkflowProjectChapter = {
+  name: "Workflow / Form Platform",
+  disclosure: "Employer-owned work presented anonymously.",
+  purpose:
+    "Experience building configurable forms whose submissions can initiate workflow logic, ordered work, and resulting actions.",
+  thesis:
+    "A form submission is only the beginning. The system becomes useful in what it coordinates next.",
+  atlasBranch: "Automation",
+  stages: [
+    {
+      id: "form",
+      label: "Form",
+      phase: "Input",
+      responsibility: "Configure fields and collect structured input.",
+    },
+    {
+      id: "submission",
+      label: "Submission",
+      phase: "Event",
+      responsibility:
+        "Turn completed input into an event the system can handle.",
+    },
+    {
+      id: "trigger",
+      label: "Trigger",
+      phase: "Decision",
+      responsibility: "Determine when the next process should begin.",
+    },
+    {
+      id: "workflow",
+      label: "Workflow",
+      phase: "Execution",
+      responsibility: "Coordinate ordered steps and asynchronous work.",
+    },
+    {
+      id: "action",
+      label: "Action",
+      phase: "Outcome",
+      responsibility: "Carry out the resulting operation or integration.",
+    },
+  ],
+  technologies: ["React", "ASP.NET Core"],
 };
