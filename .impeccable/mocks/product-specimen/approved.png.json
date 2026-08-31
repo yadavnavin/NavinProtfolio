@@ -1,0 +1,5 @@
+{
+  "approved": true,
+  "promptFile": "approved.prompt.txt",
+  "notes": "Approved for composition, palette, typography, inspection probe, and artifact hierarchy only. Generated location, availability, contact details, technologies, and claims are not approved and must not ship."
+}

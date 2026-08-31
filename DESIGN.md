@@ -1,324 +1,191 @@
-# Portfolio Design Direction
-
-## Goal
-
-Create a distinctive, premium software-engineering portfolio that feels like a digital studio or experimental technology publication rather than a conventional developer portfolio.
-
-The experience should communicate:
-
-- engineering depth
-- product thinking
-- curiosity
-- craft
-- technical ambition
-
-It should feel contemporary and memorable without sacrificing usability.
-
+---
+name: Product Specimen Portfolio
+description: An artifact-led software engineering portfolio that reveals the systems underneath finished products.
+colors:
+  cobalt-signal: "#3157f5"
+  cobalt-soft: "#dfe5ff"
+  mineral-paper: "#f3f1eb"
+  raised-paper: "#f8f6f4"
+  graphite: "#171716"
+  graphite-muted: "#66645f"
+  rule: "#c9c5bc"
+  rule-strong: "#8f8c85"
+typography:
+  display:
+    fontFamily: "Geist, Arial, sans-serif"
+    fontSize: "clamp(3.4rem, 4.25vw, 3.85rem)"
+    fontWeight: 640
+    lineHeight: 0.94
+    letterSpacing: "-0.04em"
+  headline:
+    fontFamily: "Geist, Arial, sans-serif"
+    fontSize: "clamp(3.5rem, 7vw, 6rem)"
+    fontWeight: 630
+    lineHeight: 0.96
+    letterSpacing: "-0.04em"
+  body:
+    fontFamily: "Geist, Arial, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  label:
+    fontFamily: "Geist Mono, Consolas, monospace"
+    fontSize: "0.72rem"
+    fontWeight: 400
+    lineHeight: 1.5
+    letterSpacing: "0.05em"
+rounded:
+  square: "0px"
+  optical: "999px"
+spacing:
+  touch-target: "44px"
+  gutter: "clamp(1.25rem, 3.5vw, 4.25rem)"
+  section: "clamp(8rem, 13vw, 13rem)"
+components:
+  navigation-link:
+    textColor: "{colors.graphite}"
+    rounded: "{rounded.square}"
+    height: "44px"
+    padding: "0 0.6rem"
+  unavailable-action:
+    textColor: "{colors.graphite-muted}"
+    rounded: "{rounded.square}"
+    height: "44px"
+  topology-control:
+    backgroundColor: "transparent"
+    textColor: "{colors.graphite-muted}"
+    rounded: "{rounded.square}"
+    height: "10.5rem"
 ---
 
-## Core Direction
+# Design System: Product Specimen Portfolio
 
-Editorial technology × interactive engineering × restrained experimentation.
+## Overview
 
-The website should combine:
+**Creative North Star: "The Product Specimen"**
 
-- oversized expressive typography
-- disciplined whitespace
-- asymmetric compositions
-- technical diagrams and system-inspired visuals
-- refined microinteractions
-- a small number of cinematic moments
-- strong visual hierarchy
-- carefully art-directed project presentation
+The portfolio treats software work as evidence under inspection: finished products remain legible on the surface while precise rules, routes, and system diagrams reveal the engineering underneath. The mood is editorial, technical, calm, and exacting rather than promotional.
 
-Avoid making every section visually loud.
+Warm paper and disciplined graphite establish a tactile publication-like ground. Cobalt appears only as a signal for routes, focus, state, and evidence. Asymmetric compositions and generous pauses prevent the page from feeling like a repeated card catalogue.
 
-Contrast calm sections with a few highly expressive interactions.
+**Key Characteristics:**
 
----
+- Artifact-led project storytelling
+- Twelve-column editorial alignment with deliberate asymmetry
+- Inspection geometry built from rules, nodes, routes, and one optical lens
+- Flat mineral surfaces with restrained optical depth
+- Purposeful motion that preserves a complete static reading
 
-## Visual Personality
+## Colors
 
-Desired:
+The palette combines warm mineral neutrals with a single high-clarity cobalt signal.
 
-- premium
-- sharp
-- technical
-- thoughtful
-- experimental
-- mature
-- minimal where appropriate
-- surprising where valuable
+### Primary
 
-Not desired:
+- **Cobalt Signal:** Reserved for active topology routes, selected nodes, focus outlines, navigation emphasis, and tiny evidence markers.
+- **Cobalt Soft:** A supporting tint for selected or explanatory states; it must not become a broad decorative wash.
 
-- playful startup template
-- cyberpunk dashboard
-- generic developer portfolio
-- generic SaaS landing page
-- gaming website
-- neon overload
-- animation showcase with no purpose
+### Neutral
 
----
+- **Mineral Paper:** The continuous page ground and default SVG fill.
+- **Raised Paper:** The subtle lifted material inside the optical probe and image backing.
+- **Graphite:** Primary text, decisive rules, and high-emphasis geometry.
+- **Graphite Muted:** Explanations, metadata, captions, and secondary controls.
+- **Rule / Rule Strong:** The inspection grid, dividers, artifact frames, and structural boundaries.
 
-## Color
+**The One Signal Rule.** Cobalt is the only accent and should occupy a small fraction of any viewport; its rarity gives state changes meaning.
 
-Start primarily neutral.
-
-Preferred foundation:
-
-- warm off-white / very light neutral background
-- near-black foreground
-- subtle muted gray
-- one intentional accent color
-
-Dark mode may be considered later.
-
-Do not introduce multiple competing accent colors without a design reason.
-
-Avoid default AI purple gradients.
-
----
+**The Continuous Paper Rule.** Sections share one mineral ground. Use rules and spacing—not alternating colored bands—to establish chapters.
 
 ## Typography
 
-Typography should carry much of the visual identity.
+**Display Font:** Geist (with Arial and sans-serif fallbacks)  
+**Body Font:** Geist (with Arial and sans-serif fallbacks)  
+**Label/Mono Font:** Geist Mono (with Consolas and monospace fallbacks)
 
-Use:
+**Character:** A compact grotesk carries both product confidence and engineering clarity. Mono is an annotation instrument, never a novelty layer.
 
-- strong sans-serif for primary/interface typography
-- mono selectively for engineering metadata
-- optional editorial/display face only if it materially improves the concept
+### Hierarchy
 
-Current Geist installation may be used as the foundation.
+- **Display:** Heavy, tightly tracked, and nearly solid-set; reserved for the hero thesis and major product names.
+- **Headline:** Large editorial section statements with compact line-height and intentional wrapping.
+- **Title:** Medium-weight project and system labels, generally kept under two lines.
+- **Body:** Comfortable reading copy with a line-height of 1.55 and a typical maximum measure around 32–34rem.
+- **Label:** Small mono metadata, indices, flows, and system annotations; uppercase only when the label behaves like an instrument readout.
 
-Typography should use strong differences in:
+**The Wide Editorial Rule.** Major statements should form two to four intentional lines, not narrow six-line towers.
 
-- scale
-- weight
-- spacing
-- line length
-- alignment
+**The Annotation Rule.** Mono belongs to evidence, sequence, state, and metadata. Narrative prose remains sans-serif.
 
-Avoid excessively small body text.
+## Layout
 
----
+The desktop composition uses a twelve-column grid inside a fluid 100rem maximum canvas. Outer gutters scale from 1.25rem to 4.25rem and major chapters use 8rem to 13rem of vertical space. Content may span or skip columns to create tension, but all section edges, rules, images, and diagrams must resolve to the shared grid.
 
-## Grid
+The hero separates its thesis, proof list, system map, and topology rail rather than collapsing them into a centered block. SeeMyUI occupies full visual authority in its chapter; confidential systems use distinct diagrams inside one consolidated narrative.
 
-Use a strong underlying grid.
+At tablet widths, diagrams and evidence reflow while preserving their reading order. At mobile widths, the navigation becomes a two-row structure, the hero map becomes full-width, topology becomes an ordered vertical sequence, and the SeeMyUI artifact moves before its annotations. No section may rely on horizontal clipping, and every interactive target remains at least 44px.
 
-Desktop layouts may intentionally break the grid for emphasis.
+**The Shared Datum Rule.** A rule, image edge, or text block should align to a documented column before it is allowed to break the grid.
 
-Prefer:
+## Elevation & Depth
 
-- generous outer margins
-- meaningful negative space
-- varied section rhythms
-- asymmetric project compositions
+The system is flat by default. Depth comes from paper tone, hairline structure, overlapping routes, and a single optical-glass probe. The probe alone may use translucent raised paper, a restrained blur, and a soft graphite shadow; ordinary containers and project chapters do not float.
 
-Avoid repeating the exact same centered container for every section.
+**The One Lens Rule.** Optical glass is a signature inspection device, not a reusable card treatment.
 
----
+**The Flat Evidence Rule.** Screenshots and diagrams are framed with borders and captions, never generic ambient card shadows.
 
-## Surfaces
+## Shapes
 
-Do not put everything inside cards.
+The dominant shape language is square and technical: zero-radius frames, rectilinear paths, small square nodes, and hairline borders. The circular inspection lens is the intentional exception and creates contrast with the system grid. Avoid arbitrary rounded containers and pill-shaped decoration.
 
-Use:
+## Components
 
-- open layouts
-- rules/lines
-- typography
-- spacing
-- image framing
-- subtle surface changes
+### Navigation
 
-Cards should exist only when the content model genuinely requires a card.
+- **Style:** Minimal sticky paper bar with a single bottom rule, compact sans labels, and a split identity lockup.
+- **States:** Hover uses a precise underline; keyboard focus uses a 2px cobalt outline with visible offset.
+- **Mobile:** Identity and links occupy separate rows while retaining 44px targets.
 
----
+### Topology Controls
 
-## Icons
+- **Shape:** Open rectangular hit areas connected by a shared rule and square nodes.
+- **State:** The active node and route turn cobalt; inactive text remains muted graphite.
+- **Behavior:** Desktop supports the GSAP inspection sequence and direct selection. Mobile presents the same information as readable ordered steps. Reduced-motion mode keeps every layer visible and selected state operable.
 
-Use Lucide when standard icons are needed.
+### Artifact Frame
 
-Use Morphicons when an icon represents changing interface state.
+- **Corner Style:** Square.
+- **Background:** Raised paper behind the authentic project image.
+- **Border:** One strong graphite-neutral rule around the image and a lighter rule beneath the caption.
+- **Caption:** Mono process flow paired with an honest unavailable state when a URL is unverified.
 
-Morphing icons should feel subtle and functional rather than decorative.
+### Evidence Rows
 
----
+- **Shape:** Open rows separated by horizontal rules; no outer card shell.
+- **State:** A small cobalt square may appear on hover to aid scanning.
+- **Content:** Capability, proof, related work, and technologies remain distinct columns rather than repeated project summaries.
 
-## Motion System
+### Unavailable Actions
 
-### Level 1 — CSS
+- **Style:** Muted graphite with an explicit “Unavailable” or verification-pending label.
+- **Behavior:** Render as non-interactive text with disabled semantics; never disguise placeholder destinations as links.
 
-Use for:
+## Do's and Don'ts
 
-- focus states
-- basic color transitions
-- tiny hover transitions
+### Do:
 
-### Level 2 — Motion
+- **Do** lead project chapters with authentic artifacts or semantic system diagrams.
+- **Do** use generous negative space and asymmetric column spans to establish hierarchy.
+- **Do** reserve cobalt for interaction, routing, selection, and small proof marks.
+- **Do** use CSS for hover/focus, Motion for state transitions, and GSAP only for the signature inspection sequence.
+- **Do** preserve complete static content and honor reduced-motion preferences.
+- **Do** redesign mobile reading order when desktop composition would become awkward.
 
-Use for:
+### Don't:
 
-- text/image reveals
-- navigation interaction
-- hover responses
-- project previews
-- layout transitions
-- shared element transitions
-- cursor-related microinteractions
-- subtle scroll-linked movement
-
-### Level 3 — GSAP + ScrollTrigger
-
-Reserve for:
-
-- signature hero sequence
-- major project storytelling sequence
-- pinned narrative sections
-- complex scroll choreography
-
-There should generally be no more than 2–3 major GSAP sequences on the site.
-
-### Level 4 — WebGL / 3D
-
-Not part of the initial stack.
-
-Only introduce Three.js/R3F later if an approved visual concept cannot be accomplished effectively with DOM/SVG/CSS.
-
----
-
-## Signature Interaction
-
-The portfolio should eventually contain one memorable interaction tied to engineering rather than arbitrary decoration.
-
-Candidate direction:
-
-An interactive system/map representing concepts such as:
-
-Product
-→ Interface
-→ API
-→ Data
-→ Automation
-→ AI
-
-As the visitor interacts or scrolls, the system transforms into or connects with actual project stories.
-
-Do not implement this until the homepage visual direction is approved.
-
----
-
-## Imagery
-
-Prioritize:
-
-1. real screenshots of public projects
-2. custom diagrams
-3. abstract engineering/system graphics
-4. generated visual artwork that follows this design system
-
-Avoid generic:
-
-- laptop stock photography
-- programmers at desks
-- fake dashboards
-- random AI illustrations
-- generic Unsplash backgrounds
-
----
-
-## Project Presentation
-
-Projects are case studies, not small portfolio cards.
-
-Each major project should have its own composition.
-
-Possible information:
-
-- index
-- project name
-- one-sentence purpose
-- role
-- year
-- selected technologies
-- engineering challenge
-- key architecture/system idea
-- visual
-- link if public
-
-Do not repeat an identical template for every project.
-
----
-
-## Mobile
-
-Mobile should preserve the design concept but may simplify cinematic effects.
-
-Do not merely convert every desktop row into:
-
-`flex-direction: column`.
-
-Reconsider:
-
-- type scale
-- order
-- visual framing
-- interaction
-- animation
-- navigation
-
-for small screens.
-
----
-
-## Accessibility
-
-All meaningful information must remain available without animation.
-
-Honor reduced-motion preferences.
-
-Ensure:
-
-- keyboard navigation
-- visible focus
-- semantic markup
-- sufficient contrast
-- usable touch targets
-
----
-
-## Performance
-
-Prefer transform/opacity animations.
-
-Lazy-load expensive visual sections.
-
-Avoid unnecessary client components.
-
-Do not introduce heavy media or WebGL merely for aesthetics.
-
----
-
-## Anti-AI Design Rules
-
-Explicitly avoid:
-
-- "Hi, I'm Navin 👋"
-- centered hero + two CTA buttons + profile image
-- skill progress bars
-- giant technology-logo clouds
-- glowing background orbs
-- gradient text everywhere
-- glass cards
-- repetitive bento blocks
-- every container having `rounded-2xl`
-- testimonial-style sections
-- generic "My Journey" timelines
-- fake metrics
-- unnecessary floating particles
-- identical reveal animation on every element
-- excessive `whileHover={{ scale: ... }}`
+- **Don't** return to repeated atlas labels, orange nodes, identical project cards, or bento grids.
+- **Don't** use generic SaaS gradients, glowing blobs, widespread glassmorphism, or text gradients.
+- **Don't** add decorative particles, stock engineering imagery, fake dashboards, fabricated metrics, or deceptive links.
+- **Don't** place the SeeMyUI screenshot in the hero; it is the primary artifact in the selected-work chapter.
+- **Don't** animate ordinary hover feedback with GSAP or hide information behind animation.

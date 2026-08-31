@@ -1,0 +1,5 @@
+{
+  "approved": true,
+  "promptFile": "hero-approved.prompt.txt",
+  "notes": "User-selected hero direction. The topology is a compositional reference only; ship repository-verified descriptions and no generated contact or project claims."
+}

@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-31T00:00:00+05:30",
+  "title": "Design System: Product Specimen Portfolio",
+  "extensions": {
+    "colorMeta": {
+      "cobalt-signal": {
+        "role": "primary",
+        "displayName": "Cobalt Signal",
+        "canonical": "#3157f5",
+        "tonalRamp": [
+          "#07134f",
+          "#102282",
+          "#1b34b3",
+          "#3157f5",
+          "#6680fa",
+          "#9dacf9",
+          "#d0d7fd",
+          "#f1f3ff"
+        ]
+      },
+      "cobalt-soft": {
+        "role": "primary",
+        "displayName": "Cobalt Soft",
+        "canonical": "#dfe5ff",
+        "tonalRamp": [
+          "#14172d",
+          "#292f57",
+          "#444d82",
+          "#6874ad",
+          "#919bd0",
+          "#b9c1ea",
+          "#dfe5ff",
+          "#f5f6ff"
+        ]
+      },
+      "mineral-paper": {
+        "role": "neutral",
+        "displayName": "Mineral Paper",
+        "canonical": "#f3f1eb",
+        "tonalRamp": [
+          "#252420",
+          "#46443f",
+          "#68665f",
+          "#8d8a82",
+          "#b2afa7",
+          "#d4d1ca",
+          "#f3f1eb",
+          "#fbfaf7"
+        ]
+      },
+      "raised-paper": {
+        "role": "neutral",
+        "displayName": "Raised Paper",
+        "canonical": "#f8f6f4",
+        "tonalRamp": [
+          "#262524",
+          "#484644",
+          "#6c6967",
+          "#918e8b",
+          "#b7b3b0",
+          "#d9d6d3",
+          "#f8f6f4",
+          "#fdfcfa"
+        ]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#171716",
+        "tonalRamp": [
+          "#171716",
+          "#343432",
+          "#52514e",
+          "#72706c",
+          "#92908b",
+          "#b5b2ac",
+          "#d8d5ce",
+          "#f3f1eb"
+        ]
+      },
+      "graphite-muted": {
+        "role": "neutral",
+        "displayName": "Graphite Muted",
+        "canonical": "#66645f",
+        "tonalRamp": [
+          "#1c1b19",
+          "#393734",
+          "#56534f",
+          "#73706a",
+          "#918e87",
+          "#b0ada6",
+          "#d1cec7",
+          "#f3f1eb"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Inspection Rule",
+        "canonical": "#c9c5bc",
+        "tonalRamp": [
+          "#211f1b",
+          "#403d37",
+          "#615d55",
+          "#827e75",
+          "#a5a198",
+          "#c9c5bc",
+          "#e3e0da",
+          "#f7f5f0"
+        ]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Strong Inspection Rule",
+        "canonical": "#8f8c85",
+        "tonalRamp": [
+          "#1d1c19",
+          "#3a3834",
+          "#575550",
+          "#74716b",
+          "#8f8c85",
+          "#b0ada6",
+          "#d2cfc8",
+          "#f3f1eb"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Specimen Display",
+        "purpose": "Hero thesis and primary product names."
+      },
+      "headline": {
+        "displayName": "Editorial Headline",
+        "purpose": "Major section statements."
+      },
+      "body": {
+        "displayName": "Reading Body",
+        "purpose": "Narrative and explanatory copy."
+      },
+      "label": {
+        "displayName": "Instrument Label",
+        "purpose": "Indices, process flows, states, and metadata."
+      }
+    },
+    "shadows": [
+      {
+        "name": "optical-probe",
+        "value": "0 1.2rem 2.5rem rgb(23 23 22 / 12%)",
+        "purpose": "Reserved for the circular inspection probe."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "160ms ease-out",
+        "purpose": "Ordinary CSS hover and focus feedback."
+      },
+      {
+        "name": "inspection-scroll",
+        "value": "GSAP ScrollTrigger scrub sequence",
+        "purpose": "Moves the probe through Interface, API, Services, Data, and Automation."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "48rem" },
+      { "name": "tablet", "value": "64rem" },
+      { "name": "laptop", "value": "80rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Navigation Link",
+      "kind": "nav",
+      "refersTo": "navigation-link",
+      "description": "Compact 44px navigation target with precise underline and cobalt focus.",
+      "html": "<a class=\"ds-nav-link\" href=\"#work\">Work</a>",
+      "css": ".ds-nav-link { display:inline-flex; min-width:44px; min-height:44px; align-items:center; justify-content:center; padding:0 .6rem; color:#171716; font:400 .82rem Geist,Arial,sans-serif; text-decoration:none; } .ds-nav-link:hover { text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:.35rem; } .ds-nav-link:focus-visible { outline:2px solid #3157f5; outline-offset:.3rem; }"
+    },
+    {
+      "name": "Topology Control",
+      "kind": "button",
+      "refersTo": "topology-control",
+      "description": "An open inspection-layer control connected to the shared topology rail.",
+      "html": "<button class=\"ds-topology\" aria-pressed=\"true\"><span>01</span><strong>Interface</strong><small>Product behavior and accessible state.</small></button>",
+      "css": ".ds-topology { width:220px; min-height:168px; padding:1.4rem 1rem 1rem 0; border:0; border-top:1px solid #c9c5bc; background:transparent; color:#66645f; text-align:left; } .ds-topology span { display:block; color:#3157f5; font:400 .65rem 'Geist Mono',Consolas,monospace; } .ds-topology strong { display:block; margin-top:.55rem; color:#171716; font:600 .88rem Geist,Arial,sans-serif; text-transform:uppercase; } .ds-topology small { display:block; margin-top:.9rem; font:400 .77rem/1.45 Geist,Arial,sans-serif; } .ds-topology:hover,.ds-topology[aria-pressed='true'] { color:#171716; } .ds-topology:focus-visible { outline:2px solid #3157f5; outline-offset:.3rem; }"
+    },
+    {
+      "name": "Artifact Frame",
+      "kind": "card",
+      "description": "Square evidence frame for authentic project imagery and process metadata.",
+      "html": "<figure class=\"ds-artifact\"><div>AUTHENTIC PRODUCT ARTIFACT</div><figcaption>Upload → Analyze → Compare</figcaption></figure>",
+      "css": ".ds-artifact { margin:0; color:#171716; font-family:Geist,Arial,sans-serif; } .ds-artifact div { min-height:180px; display:grid; place-content:center; border:1px solid #8f8c85; background:#f8f6f4; } .ds-artifact figcaption { min-height:72px; display:flex; align-items:center; border-bottom:1px solid #c9c5bc; color:#66645f; font:400 .72rem 'Geist Mono',Consolas,monospace; }"
+    },
+    {
+      "name": "Unavailable Action",
+      "kind": "custom",
+      "refersTo": "unavailable-action",
+      "description": "Honest non-interactive treatment for unverified URLs and contact details.",
+      "html": "<span class=\"ds-unavailable\" aria-disabled=\"true\">Public link pending verification</span>",
+      "css": ".ds-unavailable { display:inline-flex; min-height:44px; align-items:center; color:#66645f; font:400 .82rem Geist,Arial,sans-serif; cursor:not-allowed; text-decoration:line-through; text-decoration-color:#8f8c85; }"
+    },
+    {
+      "name": "Evidence Row",
+      "kind": "custom",
+      "description": "Open capability row organized by rules instead of a card shell.",
+      "html": "<div class=\"ds-evidence-row\"><strong>Architecture</strong><span>Clear system boundaries and dependable data flow.</span></div>",
+      "css": ".ds-evidence-row { position:relative; display:grid; grid-template-columns:1fr 2fr; gap:2rem; min-height:96px; padding:1.5rem 0; border-top:1px solid #c9c5bc; color:#171716; font-family:Geist,Arial,sans-serif; } .ds-evidence-row::before { position:absolute; top:-4px; left:0; width:8px; height:8px; background:#3157f5; content:''; opacity:0; transition:opacity 160ms ease-out; } .ds-evidence-row:hover::before { opacity:1; } .ds-evidence-row span { color:#66645f; font-size:.82rem; line-height:1.5; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Product Specimen",
+    "overview": "The portfolio treats software work as evidence under inspection: finished products remain legible on the surface while precise rules, routes, and system diagrams reveal the engineering underneath. The mood is editorial, technical, calm, and exacting rather than promotional. Warm paper and disciplined graphite establish a tactile publication-like ground. Cobalt appears only as a signal for routes, focus, state, and evidence. Asymmetric compositions and generous pauses prevent the page from feeling like a repeated card catalogue.",
+    "keyCharacteristics": [
+      "Artifact-led project storytelling",
+      "Twelve-column editorial alignment with deliberate asymmetry",
+      "Inspection geometry built from rules, nodes, routes, and one optical lens",
+      "Flat mineral surfaces with restrained optical depth",
+      "Purposeful motion that preserves a complete static reading"
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Cobalt is the only accent and should occupy a small fraction of any viewport; its rarity gives state changes meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Continuous Paper Rule",
+        "body": "Sections share one mineral ground. Use rules and spacing—not alternating colored bands—to establish chapters.",
+        "section": "colors"
+      },
+      {
+        "name": "The Wide Editorial Rule",
+        "body": "Major statements should form two to four intentional lines, not narrow six-line towers.",
+        "section": "typography"
+      },
+      {
+        "name": "The Annotation Rule",
+        "body": "Mono belongs to evidence, sequence, state, and metadata. Narrative prose remains sans-serif.",
+        "section": "typography"
+      },
+      {
+        "name": "The Shared Datum Rule",
+        "body": "A rule, image edge, or text block should align to a documented column before it is allowed to break the grid.",
+        "section": "layout"
+      },
+      {
+        "name": "The One Lens Rule",
+        "body": "Optical glass is a signature inspection device, not a reusable card treatment.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Flat Evidence Rule",
+        "body": "Screenshots and diagrams are framed with borders and captions, never generic ambient card shadows.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do lead project chapters with authentic artifacts or semantic system diagrams.",
+      "Do use generous negative space and asymmetric column spans to establish hierarchy.",
+      "Do reserve cobalt for interaction, routing, selection, and small proof marks.",
+      "Do use CSS for hover/focus, Motion for state transitions, and GSAP only for the signature inspection sequence.",
+      "Do preserve complete static content and honor reduced-motion preferences.",
+      "Do redesign mobile reading order when desktop composition would become awkward."
+    ],
+    "donts": [
+      "Don't return to repeated atlas labels, orange nodes, identical project cards, or bento grids.",
+      "Don't use generic SaaS gradients, glowing blobs, widespread glassmorphism, or text gradients.",
+      "Don't add decorative particles, stock engineering imagery, fake dashboards, fabricated metrics, or deceptive links.",
+      "Don't place the SeeMyUI screenshot in the hero; it is the primary artifact in the selected-work chapter.",
+      "Don't animate ordinary hover feedback with GSAP or hide information behind animation."
+    ]
+  }
+}
