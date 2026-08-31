@@ -174,6 +174,13 @@ button {
   border-bottom: 1px solid var(--rule);
 }
 
+.specimen-stage {
+  position: relative;
+  width: 100%;
+  min-height: inherit;
+  background: var(--paper);
+}
+
 .hero-composition {
   position: relative;
   z-index: 3;
@@ -265,64 +272,192 @@ button {
 }
 
 .system-map {
+  display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
 }
 
-.system-map path {
+.system-map-route,
+.system-map-current,
+.system-map-nodes path {
   fill: none;
   stroke-linecap: square;
   stroke-linejoin: miter;
   vector-effect: non-scaling-stroke;
 }
 
-.system-map-muted path {
+.system-map-route-muted {
   stroke: var(--rule);
-  stroke-dasharray: 2 4;
-  stroke-width: 0.85;
+  stroke-dasharray: 1.5 4;
+  stroke-width: 0.72;
 }
 
-.system-map-strong path {
+.system-map-route-strong {
   stroke: var(--rule-strong);
-  stroke-width: 0.9;
+  stroke-width: 0.82;
+}
+
+.system-map-route[data-route-active] {
+  stroke: color-mix(in srgb, var(--signal) 68%, var(--rule-strong));
+  stroke-width: 1.15;
 }
 
 .system-map-nodes rect,
 .system-map-nodes circle {
   fill: var(--paper);
   stroke: var(--rule-strong);
-  stroke-width: 0.9;
+  stroke-width: 0.82;
   vector-effect: non-scaling-stroke;
 }
 
-.system-map-nodes path,
-.system-map-packets path {
+.system-map-nodes path {
   stroke: var(--rule-strong);
-  stroke-width: 0.9;
+  stroke-width: 0.82;
 }
 
-.system-map-packets path {
-  stroke-linecap: round;
-  stroke-width: 2.4;
+.system-map-packets rect {
+  fill: var(--rule-strong);
+  opacity: 0.66;
+  transition:
+    fill 160ms ease-out,
+    opacity 160ms ease-out;
+}
+
+.system-map-packets [data-packet-active] rect {
+  fill: var(--signal);
+  opacity: 0.92;
+}
+
+.system-map-current {
+  stroke: var(--signal);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  stroke-width: 1.55;
+}
+
+.topology-hotspots {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  pointer-events: none;
+}
+
+.topology-hotspot {
+  position: absolute;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: crosshair;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  place-items: center;
+}
+
+.topology-hotspot > span {
+  width: 0.48rem;
+  height: 0.48rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  transition:
+    border-color 160ms ease-out,
+    background 160ms ease-out,
+    transform 160ms ease-out;
+}
+
+.topology-hotspot:hover > span,
+.topology-hotspot:focus-visible > span,
+.topology-hotspot[aria-pressed="true"] > span {
+  border-color: var(--signal);
+  background: var(--signal);
+  transform: scale(1.35);
+}
+
+.inspection-instruction {
+  position: absolute;
+  z-index: 2;
+  top: 0.35rem;
+  right: 0.35rem;
+  margin: 0;
+  color: var(--graphite-muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.035em;
+}
+
+.inspection-instruction-mobile {
+  display: none;
 }
 
 .inspection-probe {
   position: absolute;
   top: 49%;
   left: 47%;
-  z-index: 2;
+  z-index: 4;
   width: clamp(10.5rem, 14.2vw, 13.5rem);
   aspect-ratio: 1;
   overflow: hidden;
   border: 2px solid rgb(89 88 84 / 82%);
   border-radius: 50%;
-  background: rgb(248 246 244 / 58%);
+  background: rgb(248 246 244 / 76%);
   box-shadow:
     0 1.4rem 2rem rgb(23 23 22 / 16%),
     inset 0 0 1.5rem rgb(255 255 255 / 74%);
   transform: translate(-50%, -50%);
-  backdrop-filter: blur(1.5px) contrast(1.08);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  will-change: transform;
+}
+
+.inspection-probe[data-dragging] {
+  cursor: grabbing;
+}
+
+.inspection-probe-map {
+  position: absolute;
+  z-index: 1;
+  top: -35%;
+  left: -35%;
+  width: 172%;
+  height: 172%;
+  will-change: transform;
+}
+
+.inspection-probe-map .system-map-route-muted {
+  stroke: var(--rule-strong);
+  stroke-width: 0.92;
+}
+
+.inspection-probe-map .system-map-route-strong,
+.inspection-probe-map .system-map-nodes path,
+.inspection-probe-map .system-map-nodes rect,
+.inspection-probe-map .system-map-nodes circle {
+  stroke: var(--graphite-muted);
+  stroke-width: 1.05;
+}
+
+.inspection-probe-map .system-map-route[data-route-active] {
+  stroke: var(--signal);
+  stroke-width: 1.55;
+}
+
+.inspection-probe-glare {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(
+    128deg,
+    rgb(255 255 255 / 45%),
+    transparent 34% 68%,
+    rgb(255 255 255 / 22%)
+  );
+  pointer-events: none;
 }
 
 .inspection-probe-ring {
@@ -334,71 +469,71 @@ button {
   box-shadow:
     inset 0 0 0 0.2rem rgb(255 255 255 / 44%),
     0 0 0 0.16rem rgb(201 197 188 / 62%);
+  pointer-events: none;
 }
 
-.inspection-probe-code {
+.inspection-readout {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
+  top: 17%;
+  left: 67%;
+  width: min(14.5rem, 30%);
+  padding: 0.8rem 0.9rem;
+  border-top: 1px solid var(--graphite);
+  border-bottom: 1px solid var(--rule);
+  background: rgb(243 241 235 / 93%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease-out;
+}
+
+.inspection-readout[data-visible] {
+  opacity: 1;
+}
+
+.inspection-readout::before {
+  position: absolute;
+  top: 2.5rem;
+  width: 1.35rem;
+  height: 1px;
+  background: var(--rule-strong);
+  content: "";
+}
+
+.inspection-readout[data-side="right"]::before {
+  right: 100%;
+}
+
+.inspection-readout[data-side="left"]::before {
+  left: 100%;
+}
+
+.inspection-readout > span {
   color: var(--graphite-muted);
   font-family: var(--font-geist-mono), monospace;
-  font-size: 0.9rem;
-  text-align: center;
+  font-size: 0.62rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.inspection-probe-code-left {
-  top: 27%;
-  left: 31%;
+.inspection-readout strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
 }
 
-.inspection-probe-code-right {
-  top: 41%;
-  right: 28%;
-}
-
-.inspection-probe-dots {
-  position: absolute;
-  z-index: 3;
-  bottom: 22%;
-  left: 50%;
+.inspection-readout p {
+  margin: 0.55rem 0 0;
   color: var(--graphite-muted);
-  font-size: 0.8rem;
-  letter-spacing: 0.2em;
-  transform: translateX(-50%);
-}
-
-.inspection-probe-grid {
-  position: absolute;
-  z-index: 1;
-  inset: -10%;
-  background:
-    linear-gradient(
-      90deg,
-      transparent 49.7%,
-      var(--rule-strong) 50%,
-      transparent 50.3%
-    ),
-    linear-gradient(
-      transparent 49.7%,
-      var(--rule-strong) 50%,
-      transparent 50.3%
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 2.8rem,
-      rgb(143 140 133 / 34%) 2.8rem calc(2.8rem + 1px)
-    ),
-    repeating-linear-gradient(
-      transparent 0 2.8rem,
-      rgb(143 140 133 / 34%) 2.8rem calc(2.8rem + 1px)
-    );
-  opacity: 0.78;
+  font-size: 0.72rem;
+  line-height: 1.45;
 }
 
 .probe-route {
   position: absolute;
-  top: calc(49% + clamp(5.25rem, 7.1vw, 6.75rem));
+  top: 53.5%;
   bottom: 1.6rem;
-  left: 47%;
+  left: 55.56%;
   z-index: 1;
   width: 1px;
   background: var(--signal);
@@ -452,14 +587,24 @@ button {
 
 .topology-bus path {
   fill: none;
-  stroke: var(--signal);
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.6;
   vector-effect: non-scaling-stroke;
 }
 
-.topology-bus circle {
+.topology-bus-base path {
+  stroke: color-mix(in srgb, var(--signal) 28%, var(--rule));
+  stroke-width: 1;
+}
+
+.topology-bus-flow path {
+  stroke: var(--signal);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  stroke-width: 1.6;
+}
+
+.topology-bus-flow circle {
   fill: var(--signal);
 }
 
@@ -477,6 +622,14 @@ button {
 .topology-field button:hover,
 .topology-field button[aria-pressed="true"] {
   color: var(--graphite);
+}
+
+.topology-field li[data-active] .topology-heading svg {
+  color: var(--signal);
+}
+
+.topology-field li[data-active] .topology-heading strong {
+  font-weight: 720;
 }
 
 .topology-heading {
@@ -517,14 +670,7 @@ button {
 }
 
 .layer-route {
-  position: absolute;
-  top: -1px;
-  right: 0;
-  left: 0;
-  height: 1px;
-  background: var(--signal);
-  transform: scaleX(0);
-  transform-origin: left;
+  display: none;
 }
 
 .public-project,
@@ -1191,6 +1337,52 @@ button {
     margin-top: 4rem;
   }
 
+  .inspection-probe {
+    cursor: default;
+    touch-action: auto;
+  }
+
+  .inspection-instruction-desktop {
+    display: none;
+  }
+
+  .inspection-instruction-mobile {
+    display: inline;
+  }
+
+  .inspection-readout {
+    top: auto;
+    right: 0;
+    bottom: -6.5rem;
+    left: 0;
+    display: grid;
+    width: 100%;
+    min-height: 5.4rem;
+    grid-template-columns: minmax(7rem, 0.8fr) minmax(10rem, 1fr);
+    column-gap: 2rem;
+    transform: none;
+  }
+
+  .inspection-readout::before {
+    display: none;
+  }
+
+  .inspection-readout > span {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .inspection-readout strong {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  .inspection-readout p {
+    margin-top: 0;
+    grid-row: 1 / span 2;
+    grid-column: 2;
+  }
+
   .probe-route {
     bottom: -6rem;
   }
@@ -1200,7 +1392,7 @@ button {
     right: auto;
     bottom: auto;
     left: auto;
-    margin-top: 5rem;
+    margin-top: 9rem;
     padding-left: 0;
   }
 
@@ -1332,6 +1524,10 @@ button {
     border-left: 1px solid var(--rule);
   }
 
+  .topology-field li:last-child {
+    border-right: 0;
+  }
+
   .topology-field li::before {
     position: absolute;
     top: 1.3rem;
@@ -1354,7 +1550,15 @@ button {
   }
 
   .layer-route {
-    display: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    display: block;
+    width: 1px;
+    background: var(--signal);
+    transform: scaleY(0);
+    transform-origin: top;
   }
 
   .public-project-heading,
@@ -1515,5 +1719,14 @@ button {
   .probe-route,
   .layer-route {
     transform: none;
+  }
+
+  .system-map-current,
+  .topology-bus-flow path {
+    stroke-dashoffset: 0;
+  }
+
+  .topology-bus-flow circle {
+    transform: scale(1);
   }
 }
