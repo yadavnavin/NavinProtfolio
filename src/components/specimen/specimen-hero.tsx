@@ -16,6 +16,7 @@ import {
   HERO_TOPOLOGY_VIEWBOX,
   type HeroTopologyHotspot,
   heroTopologyHotspots,
+  heroTopologyJourney,
   type TopologyLayerId,
 } from "@/data/hero-topology";
 import { topologyLayers } from "@/data/portfolio-specimen";
@@ -53,7 +54,18 @@ const layerDetails = {
   },
 } as const;
 
-const initialHotspot = heroTopologyHotspots[0];
+const initialHotspot: HeroTopologyHotspot = heroTopologyHotspots[0];
+const journeyHotspots = heroTopologyJourney.map((step) => {
+  const hotspot = heroTopologyHotspots.find(
+    (candidate) => candidate.id === step.hotspotId,
+  );
+
+  if (!hotspot) {
+    throw new Error(`Missing hero journey hotspot: ${step.hotspotId}`);
+  }
+
+  return hotspot;
+});
 
 function isTopologyLayerId(
   value: string | undefined,
@@ -72,7 +84,14 @@ export function SpecimenHero() {
   const fieldRef = useRef<HTMLDivElement>(null);
   const lensRef = useRef<HTMLDivElement>(null);
   const lensMapRef = useRef<HTMLDivElement>(null);
+  const probeRouteRef = useRef<HTMLSpanElement>(null);
+  const topologyBusRef = useRef<SVGSVGElement>(null);
+  const topologyBaseTrunkRef = useRef<SVGPathElement>(null);
+  const topologyFlowTrunkRef = useRef<SVGPathElement>(null);
+  const topologyFlowBusRef = useRef<SVGPathElement>(null);
   const readoutRef = useRef<HTMLElement>(null);
+  const introTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const introCompleteRef = useRef(false);
   const dragRef = useRef(false);
   const scrollLockedRef = useRef(false);
   const snappedHotspotRef = useRef<HeroTopologyHotspot | null>(initialHotspot);
@@ -82,11 +101,14 @@ export function SpecimenHero() {
   const [activeHotspotId, setActiveHotspotId] = useState<string | null>(
     initialHotspot.id,
   );
-  const [activeLayer, setActiveLayer] = useState(initialHotspot.layer);
+  const [activeLayer, setActiveLayer] = useState<TopologyLayerId>(
+    initialHotspot.layer,
+  );
 
   const visibleHotspot =
     heroTopologyHotspots.find((hotspot) => hotspot.id === activeHotspotId) ??
     lastHotspotRef.current;
+  const LensIcon = layerDetails[visibleHotspot.layer].icon;
 
   const positionReadout = useCallback((x: number, y: number) => {
     const field = fieldRef.current;
@@ -120,7 +142,8 @@ export function SpecimenHero() {
       const field = fieldRef.current;
       const lens = lensRef.current;
       const lensMap = lensMapRef.current;
-      if (!field || !lens || !lensMap) return;
+      const probeRoute = probeRouteRef.current;
+      if (!field || !lens || !lensMap || !probeRoute) return;
 
       const radius = lens.offsetWidth / 2;
       const clampedX = Math.max(
@@ -140,8 +163,9 @@ export function SpecimenHero() {
         y: (clampedY / field.clientHeight) * HERO_TOPOLOGY_VIEWBOX.height,
       };
 
-      gsap.killTweensOf([lens, lensMap]);
+      gsap.killTweensOf([lens, lensMap, probeRoute]);
       gsap.set(lens, { left: 0, top: 0 });
+      gsap.set(probeRoute, { left: 0 });
       gsap.to(lens, {
         x: clampedX,
         y: clampedY,
@@ -149,6 +173,35 @@ export function SpecimenHero() {
         ease: "power3.out",
         overwrite: true,
       });
+      gsap.to(probeRoute, {
+        x: clampedX,
+        duration,
+        ease: "power3.out",
+        overwrite: true,
+      });
+
+      const topologyBus = topologyBusRef.current;
+      const baseTrunk = topologyBaseTrunkRef.current;
+      const flowTrunk = topologyFlowTrunkRef.current;
+      const flowBus = topologyFlowBusRef.current;
+      if (topologyBus && baseTrunk && flowTrunk && flowBus) {
+        const fieldBounds = field.getBoundingClientRect();
+        const busBounds = topologyBus.getBoundingClientRect();
+        const lensViewportX = fieldBounds.left + clampedX;
+        const busOrigin = Math.max(
+          0,
+          Math.min(
+            1060,
+            ((lensViewportX - busBounds.left) / busBounds.width) * 1000,
+          ),
+        );
+        const trunkPath = `M${busOrigin} 0V34`;
+        const busPath = `M${busOrigin} 34H100M${busOrigin} 34H900`;
+
+        baseTrunk.setAttribute("d", trunkPath);
+        flowTrunk.setAttribute("d", trunkPath);
+        flowBus.setAttribute("d", busPath);
+      }
       gsap.to(lensMap, {
         x: lensMapX,
         y: lensMapY,
@@ -187,6 +240,10 @@ export function SpecimenHero() {
       lastHotspotRef.current = hotspot;
       setActiveHotspotId(hotspot.id);
       setActiveLayer(hotspot.layer);
+      const journeyIndex = heroTopologyJourney.findIndex(
+        (step) => step.layer === hotspot.layer,
+      );
+      if (journeyIndex >= 0) activeLayerIndexRef.current = journeyIndex;
       positionLensAtHotspot(hotspot, animate);
     },
     [positionLensAtHotspot],
@@ -294,6 +351,8 @@ export function SpecimenHero() {
     if (!field) return;
 
     const restoreLensPosition = () => {
+      if (!introCompleteRef.current) return;
+
       const position = mapPositionRef.current;
       positionLens(
         (position.x / HERO_TOPOLOGY_VIEWBOX.width) * field.clientWidth,
@@ -310,6 +369,420 @@ export function SpecimenHero() {
 
   useGSAP(
     () => {
+      const root = rootRef.current;
+      const field = fieldRef.current;
+      const lens = lensRef.current;
+      const lensMap = lensMapRef.current;
+      const probeRoute = probeRouteRef.current;
+      if (!root || !field || !lens || !lensMap || !probeRoute) return;
+
+      positionLensAtHotspot(initialHotspot, false);
+
+      const backgroundMap = root.querySelector<SVGSVGElement>(
+        '[data-map-surface="background"]',
+      );
+      const lensSurface = root.querySelector<SVGSVGElement>(
+        '[data-map-surface="lens"]',
+      );
+      const currentPath =
+        backgroundMap?.querySelector<SVGPathElement>("[data-current-map]");
+      const heroHeading = root.querySelector<HTMLElement>(".hero-copy h1");
+      const heroBody = root.querySelector<HTMLElement>(".hero-copy > p");
+      const proofList = root.querySelector<HTMLElement>(".hero-proof-list");
+      const instruction = root.querySelector<HTMLElement>(
+        ".inspection-instruction",
+      );
+      const layerItems = gsap.utils.toArray<HTMLElement>(
+        ".topology-field [data-layer]",
+      );
+      const routes = Array.from(
+        backgroundMap?.querySelectorAll<SVGPathElement>("[data-map-route]") ??
+          [],
+      ).sort(
+        (first, second) =>
+          Number(first.dataset.revealOrder) -
+          Number(second.dataset.revealOrder),
+      );
+      const energyRoutes = Array.from(
+        backgroundMap?.querySelectorAll<SVGPathElement>("[data-map-energy]") ??
+          [],
+      ).sort(
+        (first, second) =>
+          Number(first.dataset.revealOrder) -
+          Number(second.dataset.revealOrder),
+      );
+      const nodes = Array.from(
+        backgroundMap?.querySelectorAll<SVGGraphicsElement>(
+          "[data-map-node]",
+        ) ?? [],
+      ).sort((first, second) => {
+        const distance = (node: SVGGraphicsElement) =>
+          Math.hypot(
+            Number(node.dataset.nodeX) - HERO_TOPOLOGY_VIEWBOX.width / 2,
+            Number(node.dataset.nodeY) - HERO_TOPOLOGY_VIEWBOX.height / 2,
+          );
+
+        return distance(first) - distance(second);
+      });
+      const packets = Array.from(
+        backgroundMap?.querySelectorAll<SVGGElement>("[data-map-packet]") ?? [],
+      );
+      const baseBusPaths = gsap.utils.toArray<SVGPathElement>(
+        ".topology-bus-base path",
+      );
+      const flowBusPaths = gsap.utils.toArray<SVGPathElement>(
+        "[data-flow-trunk], [data-flow-bus], [data-flow-branch]",
+      );
+      const flowNodes =
+        gsap.utils.toArray<SVGCircleElement>("[data-flow-node]");
+      const lensIcon = lens.querySelector<HTMLElement>(
+        ".inspection-probe-icon",
+      );
+
+      if (
+        !backgroundMap ||
+        !lensSurface ||
+        !currentPath ||
+        !heroHeading ||
+        !heroBody ||
+        !proofList ||
+        !instruction ||
+        !lensIcon ||
+        routes.length === 0
+      ) {
+        introCompleteRef.current = true;
+        return;
+      }
+
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const finalLensY = Number(gsap.getProperty(lens, "y"));
+      const dropStartY = -Math.max(lens.offsetHeight * 0.72, 132);
+      let visibilityTrigger: ScrollTrigger | null = null;
+      let listening = false;
+      let started = false;
+      let copyStarted = false;
+      let copyTimeline: gsap.core.Timeline | null = null;
+
+      const removeInterruptListeners = () => {
+        if (!listening) return;
+        listening = false;
+        window.removeEventListener("wheel", finishIntro);
+        window.removeEventListener("touchstart", finishIntro);
+        window.removeEventListener("pointerdown", finishIntro, true);
+        window.removeEventListener("keydown", handleInterruptKey);
+      };
+
+      const restoreFinalState = () => {
+        gsap.set(routes, {
+          clearProps: "stroke,strokeDasharray,strokeDashoffset,opacity",
+        });
+        gsap.set(energyRoutes, {
+          clearProps: "strokeDasharray,strokeDashoffset,opacity",
+        });
+        gsap.set(nodes, {
+          clearProps: "stroke,opacity,transform,transformOrigin",
+        });
+        gsap.set(packets, { clearProps: "opacity" });
+        gsap.set(currentPath, { clearProps: "strokeDashoffset,opacity" });
+        gsap.set([...baseBusPaths, ...flowBusPaths], {
+          clearProps: "strokeDashoffset,opacity",
+        });
+        gsap.set(flowNodes, { clearProps: "opacity" });
+        gsap.set(lens, { y: finalLensY, opacity: 1, scale: 1 });
+        gsap.set(lensMap, { opacity: 1 });
+        gsap.set(lensIcon, { opacity: 1, scale: 1 });
+        gsap.set(probeRoute, { opacity: 1, scaleY: 1 });
+        gsap.set([heroHeading, heroBody, proofList, instruction], {
+          clearProps: "opacity,transform,clipPath,filter",
+        });
+        gsap.set(layerItems, { clearProps: "opacity,transform" });
+      };
+
+      const settleNetwork = () => {
+        gsap.set(routes, {
+          clearProps: "stroke,strokeDasharray,strokeDashoffset,opacity",
+        });
+        gsap.set(nodes, {
+          clearProps: "stroke,opacity,transform,transformOrigin",
+        });
+        gsap.set(packets, { clearProps: "opacity" });
+        gsap.set(energyRoutes, { opacity: 0 });
+      };
+
+      const completeIntro = () => {
+        if (introCompleteRef.current) return;
+        introCompleteRef.current = true;
+        root.dataset.introState = "complete";
+        restoreFinalState();
+        removeInterruptListeners();
+        visibilityTrigger?.kill();
+        visibilityTrigger = null;
+      };
+
+      function finishIntro() {
+        if (introCompleteRef.current) return;
+        copyTimeline?.progress(1);
+        introTimelineRef.current?.progress(1);
+        completeIntro();
+      }
+
+      function handleInterruptKey(event: KeyboardEvent) {
+        if (
+          event.key === "ArrowDown" ||
+          event.key === "ArrowUp" ||
+          event.key === "PageDown" ||
+          event.key === "PageUp" ||
+          event.key === "Home" ||
+          event.key === "End" ||
+          event.key === " "
+        ) {
+          finishIntro();
+        }
+      }
+
+      const addInterruptListeners = () => {
+        if (listening) return;
+        listening = true;
+        window.addEventListener("wheel", finishIntro, { passive: true });
+        window.addEventListener("touchstart", finishIntro, { passive: true });
+        window.addEventListener("pointerdown", finishIntro, true);
+        window.addEventListener("keydown", handleInterruptKey);
+      };
+
+      copyTimeline = gsap.timeline({
+        paused: true,
+        defaults: { overwrite: "auto" },
+      });
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: { overwrite: "auto" },
+        onComplete: completeIntro,
+      });
+      introTimelineRef.current = timeline;
+
+      gsap.set(heroHeading, {
+        clipPath: "inset(0 0 100% 0)",
+        filter: "blur(3px)",
+        opacity: 0,
+        y: 28,
+      });
+      gsap.set(heroBody, { opacity: 0, y: 18 });
+      gsap.set(proofList, { opacity: 0, y: 16 });
+      gsap.set(instruction, { opacity: 0, y: -6 });
+      gsap.set(layerItems, { opacity: 0, y: 12 });
+      gsap.set(routes, {
+        stroke: "var(--rule-strong)",
+        strokeDasharray: 1,
+        strokeDashoffset: 1,
+        opacity: 0.12,
+      });
+      gsap.set(energyRoutes, {
+        strokeDasharray: "0.12 0.88",
+        strokeDashoffset: 0.12,
+        opacity: 0,
+      });
+      gsap.set(nodes, {
+        opacity: 0,
+        scale: 0.45,
+        transformOrigin: "center",
+      });
+      gsap.set(packets, { opacity: 0 });
+      gsap.set(currentPath, { strokeDashoffset: 1, opacity: 0 });
+      gsap.set([...baseBusPaths, ...flowBusPaths], { opacity: 0 });
+      gsap.set(flowBusPaths, { strokeDashoffset: 1 });
+      gsap.set(flowNodes, { opacity: 0 });
+      gsap.set(lens, { y: dropStartY, opacity: 0, scale: 0.96 });
+      gsap.set(lensMap, { opacity: 0 });
+      gsap.set(lensIcon, { opacity: 0, scale: 0.84 });
+      gsap.set(probeRoute, { opacity: 0, scaleY: 0 });
+
+      copyTimeline
+        .to(
+          heroHeading,
+          {
+            clipPath: "inset(0 0 0% 0)",
+            filter: "blur(0px)",
+            opacity: 1,
+            y: 0,
+            duration: 0.68,
+            ease: "expo.out",
+          },
+          0,
+        )
+        .to(
+          heroBody,
+          { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
+          0.14,
+        )
+        .to(
+          proofList,
+          { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
+          0.28,
+        )
+        .to(
+          instruction,
+          { opacity: 1, y: 0, duration: 0.34, ease: "power2.out" },
+          0.5,
+        );
+
+      [0, 1, 2, 3].forEach((order) => {
+        const group = routes.filter(
+          (route) => Number(route.dataset.revealOrder) === order,
+        );
+        timeline.to(
+          group,
+          {
+            strokeDashoffset: 0,
+            opacity: order === 0 ? 0.92 : 0.68,
+            duration: 0.62,
+            stagger: 0.014,
+            ease: "power2.out",
+          },
+          0.04 + order * 0.08,
+        );
+      });
+
+      const energyIndexes = new Map<number, number>();
+      energyRoutes.forEach((route) => {
+        const order = Number(route.dataset.revealOrder);
+        const peerIndex = energyIndexes.get(order) ?? 0;
+        energyIndexes.set(order, peerIndex + 1);
+        const at = 0.18 + order * 0.11 + peerIndex * 0.012;
+
+        timeline
+          .to(route, { opacity: 0.82, duration: 0.08, ease: "power1.out" }, at)
+          .to(
+            route,
+            { strokeDashoffset: -0.88, duration: 0.72, ease: "none" },
+            at,
+          )
+          .to(
+            route,
+            { opacity: 0, duration: 0.2, ease: "power2.out" },
+            at + 0.54,
+          );
+      });
+
+      timeline
+        .to(
+          nodes,
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.28,
+            stagger: 0.006,
+            ease: "expo.out",
+          },
+          0.25,
+        )
+        .to(packets, { opacity: 0.72, duration: 0.22, stagger: 0.012 }, 0.48)
+        .to(
+          currentPath,
+          {
+            strokeDashoffset: 0,
+            opacity: 1,
+            duration: 0.36,
+            ease: "power2.out",
+          },
+          0.84,
+        )
+        .to(baseBusPaths, { opacity: 1, duration: 0.2, stagger: 0.012 }, 0.96)
+        .to(
+          flowBusPaths,
+          {
+            opacity: 1,
+            strokeDashoffset: 0,
+            duration: 0.28,
+            stagger: 0.018,
+            ease: "power2.out",
+          },
+          1.04,
+        )
+        .to(
+          layerItems,
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.42,
+            stagger: 0.055,
+            ease: "expo.out",
+          },
+          1.02,
+        )
+        .to(flowNodes, { opacity: 1, duration: 0.18, stagger: 0.018 }, 1.14)
+        .call(settleNetwork, [], 1.3)
+        .to(
+          lens,
+          {
+            y: finalLensY + 6,
+            opacity: 1,
+            scale: 1,
+            duration: 0.62,
+            ease: "power3.in",
+          },
+          1.32,
+        )
+        .to(lensMap, { opacity: 1, duration: 0.24, ease: "power2.out" }, 1.62)
+        .to(
+          lensIcon,
+          { opacity: 1, scale: 1, duration: 0.25, ease: "expo.out" },
+          1.74,
+        )
+        .to(lens, { y: finalLensY, duration: 0.18, ease: "power3.out" }, 1.94)
+        .to(
+          probeRoute,
+          { opacity: 1, scaleY: 1, duration: 0.22, ease: "power2.out" },
+          1.96,
+        );
+
+      const playCopy = () => {
+        if (copyStarted) return;
+        copyStarted = true;
+        copyTimeline?.play(0);
+      };
+
+      const playIntro = () => {
+        if (started || introCompleteRef.current) return;
+        started = true;
+        root.dataset.introState = "running";
+        addInterruptListeners();
+        playCopy();
+        timeline.play(0);
+      };
+
+      introCompleteRef.current = false;
+      if (reduceMotion || window.scrollY > 8) {
+        finishIntro();
+      } else if (window.matchMedia("(min-width: 64rem)").matches) {
+        playIntro();
+      } else {
+        playCopy();
+        visibilityTrigger = ScrollTrigger.create({
+          trigger: field,
+          start: "top 88%",
+          once: true,
+          onEnter: playIntro,
+        });
+      }
+
+      return () => {
+        removeInterruptListeners();
+        visibilityTrigger?.kill();
+        copyTimeline?.kill();
+        timeline.kill();
+        introTimelineRef.current = null;
+        introCompleteRef.current = true;
+        restoreFinalState();
+        delete root.dataset.introState;
+      };
+    },
+    { scope: rootRef, dependencies: [positionLensAtHotspot] },
+  );
+
+  useGSAP(
+    () => {
       const media = gsap.matchMedia();
 
       media.add(
@@ -317,92 +790,52 @@ export function SpecimenHero() {
         () => {
           const stage =
             rootRef.current?.querySelector<HTMLElement>("[data-hero-stage]");
-          const layerItems = gsap.utils.toArray<HTMLElement>("[data-layer]");
-          const flowBranches =
-            gsap.utils.toArray<SVGPathElement>("[data-flow-branch]");
-          const flowNodes =
-            gsap.utils.toArray<SVGCircleElement>("[data-flow-node]");
           if (!stage) return;
 
-          gsap.set("[data-current-map]", { strokeDashoffset: 1 });
-          gsap.set("[data-flow-trunk], [data-flow-bus], [data-flow-branch]", {
-            strokeDashoffset: 1,
-          });
-          gsap.set(flowNodes, { scale: 0, transformOrigin: "center" });
+          const scrollTrigger = ScrollTrigger.create({
+            trigger: rootRef.current,
+            start: "top top+=76",
+            end: "+=180%",
+            pin: stage,
+            pinSpacing: true,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+              const locked = self.isActive && self.progress > 0.015;
+              scrollLockedRef.current = locked;
 
-          const timeline = gsap.timeline({
-            defaults: { ease: "none" },
-            scrollTrigger: {
-              trigger: rootRef.current,
-              start: "top top+=76",
-              end: "+=140%",
-              pin: stage,
-              pinSpacing: true,
-              scrub: 0.72,
-              anticipatePin: 1,
-              onUpdate: (self) => {
-                const locked = self.progress > 0.015;
-                scrollLockedRef.current = locked;
+              if (locked && !snappedHotspotRef.current) {
+                const fallback = lastHotspotRef.current;
+                snappedHotspotRef.current = fallback;
+                setActiveHotspotId(fallback.id);
+                positionLensAtHotspot(fallback, true);
+              }
 
-                if (locked && !snappedHotspotRef.current) {
-                  const fallback = lastHotspotRef.current;
-                  snappedHotspotRef.current = fallback;
-                  setActiveHotspotId(fallback.id);
-                  positionLensAtHotspot(fallback, true);
-                }
-
-                const normalized = Math.max(
-                  0,
-                  Math.min(0.999, (self.progress - 0.2) / 0.68),
-                );
-                const index = Math.min(4, Math.floor(normalized * 5));
-                if (index !== activeLayerIndexRef.current) {
-                  activeLayerIndexRef.current = index;
-                  const id = layerItems[index]?.dataset.layer;
-                  if (isTopologyLayerId(id)) setActiveLayer(id);
-                }
-              },
-              onLeaveBack: () => {
-                scrollLockedRef.current = false;
-                activeLayerIndexRef.current = 0;
-                setActiveLayer(lastHotspotRef.current.layer);
-              },
+              const normalized = Math.max(
+                0,
+                Math.min(0.999, (self.progress - 0.12) / 0.76),
+              );
+              const index = Math.min(
+                journeyHotspots.length - 1,
+                Math.floor(normalized * journeyHotspots.length),
+              );
+              if (index !== activeLayerIndexRef.current) {
+                activeLayerIndexRef.current = index;
+                selectHotspot(journeyHotspots[index], true);
+              }
             },
-          });
-
-          timeline
-            .to(
-              "[data-packet]",
-              { opacity: 0.82, duration: 0.1, stagger: 0.004 },
-              0,
-            )
-            .to(
-              "[data-current-map]",
-              { strokeDashoffset: 0, duration: 0.16 },
-              0.02,
-            )
-            .to(
-              "[data-flow-trunk]",
-              { strokeDashoffset: 0, duration: 0.1 },
-              0.15,
-            )
-            .to(
-              "[data-flow-bus]",
-              { strokeDashoffset: 0, duration: 0.11 },
-              0.22,
-            );
-
-          flowBranches.forEach((branch, index) => {
-            const at = 0.31 + index * 0.12;
-            timeline
-              .to(branch, { strokeDashoffset: 0, duration: 0.1 }, at)
-              .to(flowNodes[index], { scale: 1, duration: 0.07 }, at + 0.06);
+            onLeave: () => {
+              scrollLockedRef.current = false;
+            },
+            onLeaveBack: () => {
+              scrollLockedRef.current = false;
+              activeLayerIndexRef.current = 0;
+              selectHotspot(journeyHotspots[0], true);
+            },
           });
 
           return () => {
             scrollLockedRef.current = false;
-            timeline.scrollTrigger?.kill();
-            timeline.kill();
+            scrollTrigger.kill();
           };
         },
       );
@@ -454,7 +887,10 @@ export function SpecimenHero() {
 
       return () => media.revert();
     },
-    { scope: rootRef, dependencies: [positionLensAtHotspot] },
+    {
+      scope: rootRef,
+      dependencies: [positionLensAtHotspot, selectHotspot],
+    },
   );
 
   return (
@@ -492,7 +928,9 @@ export function SpecimenHero() {
 
           <p className="inspection-instruction">
             <span className="inspection-instruction-desktop">
-              Drag the lens to inspect the system.
+              Scroll to trace the system ·
+              <br />
+              Drag to inspect.
             </span>
             <span className="inspection-instruction-mobile">
               Tap a node to inspect the system.
@@ -536,6 +974,13 @@ export function SpecimenHero() {
                 magnified
               />
             </div>
+            <span
+              key={visibleHotspot.layer}
+              className="inspection-probe-icon"
+              data-visible={activeHotspotId ? "" : undefined}
+            >
+              <LensIcon aria-hidden="true" />
+            </span>
             <span className="inspection-probe-glare" />
             <span className="inspection-probe-ring" />
           </div>
@@ -552,6 +997,7 @@ export function SpecimenHero() {
           </aside>
 
           <span
+            ref={probeRouteRef}
             className="probe-route"
             data-probe-route=""
             aria-hidden="true"
@@ -563,35 +1009,52 @@ export function SpecimenHero() {
             Follow one visible decision through the layers that support it.
           </p>
           <svg
+            ref={topologyBusRef}
             className="topology-bus"
             viewBox="0 0 1000 118"
             preserveAspectRatio="none"
             aria-hidden="true"
           >
             <g className="topology-bus-base">
-              <path d="M634 0V34" />
+              <path ref={topologyBaseTrunkRef} d="M520 0V34" />
               <path d="M100 34H900" />
               {[100, 300, 500, 700, 900].map((x) => (
                 <path key={x} d={`M${x} 34V103`} />
               ))}
             </g>
             <g className="topology-bus-flow">
-              <path data-flow-trunk="" pathLength="1" d="M634 0V34" />
               <path
+                ref={topologyFlowTrunkRef}
+                data-flow-trunk=""
+                pathLength="1"
+                d="M520 0V34"
+              />
+              <path
+                ref={topologyFlowBusRef}
                 data-flow-bus=""
                 pathLength="1"
-                d="M634 34H100M634 34H900"
+                d="M520 34H100M520 34H900"
               />
-              {[100, 300, 500, 700, 900].map((x) => (
+              {topologyLayers.map((layer, index) => (
                 <path
-                  key={x}
+                  key={layer.id}
                   data-flow-branch=""
+                  data-flow-layer={layer.id}
+                  data-active={activeLayer === layer.id ? "" : undefined}
                   pathLength="1"
-                  d={`M${x} 34V103`}
+                  d={`M${100 + index * 200} 34V103`}
                 />
               ))}
-              {[100, 300, 500, 700, 900].map((x) => (
-                <circle key={x} data-flow-node="" cx={x} cy="106" r="8" />
+              {topologyLayers.map((layer, index) => (
+                <circle
+                  key={layer.id}
+                  data-flow-node=""
+                  data-flow-layer={layer.id}
+                  data-active={activeLayer === layer.id ? "" : undefined}
+                  cx={100 + index * 200}
+                  cy="106"
+                  r="8"
+                />
               ))}
             </g>
           </svg>
@@ -613,7 +1076,13 @@ export function SpecimenHero() {
                   />
                   <button
                     type="button"
-                    onClick={() => setActiveLayer(layer.id)}
+                    onClick={() => {
+                      const journeyIndex = heroTopologyJourney.findIndex(
+                        (step) => step.layer === layer.id,
+                      );
+                      const hotspot = journeyHotspots[journeyIndex];
+                      if (hotspot) selectHotspot(hotspot);
+                    }}
                     aria-pressed={activeLayer === layer.id}
                   >
                     <span className="topology-heading">
