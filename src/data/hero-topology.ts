@@ -17,6 +17,7 @@ export type HeroTopologyNode = {
   x: number;
   y: number;
   shape: "circle" | "square" | "diamond" | "cross" | "port";
+  revealOrder: HeroTopologyRoute["revealOrder"];
 };
 
 export type HeroTopologyPacket = {
@@ -25,6 +26,12 @@ export type HeroTopologyPacket = {
   y: number;
   axis: "horizontal" | "vertical";
   routeId: string;
+};
+
+export type HeroTopologySignalNode = {
+  x: number;
+  y: number;
+  filled?: boolean;
 };
 
 export type HeroTopologyHotspot = {
@@ -36,6 +43,7 @@ export type HeroTopologyHotspot = {
   summary: string;
   routeId: string;
   feedPath: string;
+  signalNodes: readonly HeroTopologySignalNode[];
 };
 
 export const HERO_TOPOLOGY_VIEWBOX = {
@@ -43,244 +51,646 @@ export const HERO_TOPOLOGY_VIEWBOX = {
   height: 640,
 } as const;
 
-export const heroTopologyRoutes: readonly HeroTopologyRoute[] = [
+type RouteSeed = Readonly<{
+  id: string;
+  tone: HeroTopologyRoute["tone"];
+  revealOrder: HeroTopologyRoute["revealOrder"];
+  points: readonly (readonly [number, number])[];
+}>;
+
+function pointsToPath(points: RouteSeed["points"]) {
+  return points
+    .map(([x, y], index) => {
+      if (index === 0) {
+        return `M${x} ${y}`;
+      }
+
+      const [previousX, previousY] = points[index - 1];
+      if (previousY === y) {
+        return `H${x}`;
+      }
+      if (previousX === x) {
+        return `V${y}`;
+      }
+      return `L${x} ${y}`;
+    })
+    .join("");
+}
+
+/**
+ * A full-edge systems field: short and medium orthogonal routes enter from
+ * every side, then tighten into a deliberate junction behind the lens.
+ */
+const routeSeeds = [
   {
     id: "route-interface",
-    d: "M294 320H250V282H210V234H136V198H8",
     tone: "strong",
     revealOrder: 0,
+    points: [
+      [306, 330],
+      [270, 330],
+      [270, 350],
+      [218, 350],
+      [218, 328],
+      [142, 328],
+      [142, 300],
+      [70, 300],
+      [70, 276],
+      [8, 276],
+    ],
   },
   {
     id: "route-api",
-    d: "M312 294V250H270V196H226V126H190V8",
     tone: "strong",
     revealOrder: 0,
+    points: [
+      [306, 314],
+      [306, 258],
+      [278, 258],
+      [278, 212],
+      [250, 212],
+      [250, 148],
+      [226, 148],
+      [226, 82],
+      [204, 82],
+      [204, 8],
+    ],
   },
   {
     id: "route-services",
-    d: "M346 300H392V266H452V222H520V180H632",
     tone: "strong",
     revealOrder: 0,
+    points: [
+      [326, 314],
+      [382, 314],
+      [382, 284],
+      [438, 284],
+      [438, 248],
+      [504, 248],
+      [504, 228],
+      [570, 228],
+      [570, 252],
+      [632, 252],
+    ],
   },
   {
     id: "route-data",
-    d: "M328 346V390H374V450H424V516H466V632",
     tone: "strong",
     revealOrder: 0,
+    points: [
+      [324, 344],
+      [324, 396],
+      [350, 396],
+      [350, 452],
+      [382, 452],
+      [382, 514],
+      [414, 514],
+      [414, 568],
+      [414, 632],
+    ],
   },
   {
     id: "route-automation",
-    d: "M346 336H390V378H448V426H520V488H632",
     tone: "strong",
     revealOrder: 0,
+    points: [
+      [334, 340],
+      [388, 340],
+      [388, 372],
+      [450, 372],
+      [450, 420],
+      [520, 420],
+      [520, 472],
+      [632, 472],
+    ],
   },
   {
     id: "route-06",
-    d: "M170 142H126V104H72V66H8",
     tone: "muted",
     revealOrder: 2,
+    points: [
+      [154, 156],
+      [118, 156],
+      [118, 122],
+      [82, 122],
+      [82, 78],
+      [44, 78],
+    ],
   },
-  { id: "route-07", d: "M158 92H120V58H82V8", tone: "muted", revealOrder: 3 },
-  { id: "route-08", d: "M214 104H252V62H286V8", tone: "muted", revealOrder: 2 },
   {
     id: "route-09",
-    d: "M150 188H108V168H58V132H8",
+    tone: "strong",
+    revealOrder: 2,
+    points: [
+      [8, 206],
+      [56, 206],
+      [56, 234],
+      [112, 234],
+      [112, 260],
+      [170, 260],
+    ],
+  },
+  {
+    id: "route-10",
     tone: "muted",
     revealOrder: 2,
+    points: [
+      [8, 364],
+      [72, 364],
+      [72, 338],
+      [126, 338],
+      [126, 316],
+      [174, 316],
+    ],
   },
-  { id: "route-10", d: "M166 266H118V236H72", tone: "muted", revealOrder: 1 },
-  { id: "route-11", d: "M238 96H214V80H204", tone: "muted", revealOrder: 2 },
-  { id: "route-12", d: "M308 174H286V144H244", tone: "muted", revealOrder: 1 },
+  {
+    id: "route-11",
+    tone: "strong",
+    revealOrder: 2,
+    points: [
+      [8, 444],
+      [58, 444],
+      [58, 410],
+      [108, 410],
+      [108, 382],
+      [158, 382],
+    ],
+  },
+  {
+    id: "route-12",
+    tone: "muted",
+    revealOrder: 3,
+    points: [
+      [8, 520],
+      [80, 520],
+      [80, 486],
+      [146, 486],
+      [146, 452],
+      [190, 452],
+    ],
+  },
   {
     id: "route-13",
-    d: "M486 132H526V102H574V64H632",
-    tone: "muted",
-    revealOrder: 2,
+    tone: "strong",
+    revealOrder: 3,
+    points: [
+      [58, 632],
+      [58, 586],
+      [96, 586],
+      [96, 552],
+      [150, 552],
+    ],
   },
-  { id: "route-14", d: "M472 100H430V64H394V8", tone: "muted", revealOrder: 2 },
-  { id: "route-15", d: "M492 84H514V54H552V8", tone: "muted", revealOrder: 3 },
-  { id: "route-16", d: "M548 150H584V122H632", tone: "muted", revealOrder: 2 },
-  { id: "route-17", d: "M482 186H440V156H396", tone: "muted", revealOrder: 1 },
-  { id: "route-18", d: "M526 292H574V260H632", tone: "muted", revealOrder: 2 },
-  { id: "route-19", d: "M486 148H448V120H402", tone: "muted", revealOrder: 1 },
   {
-    id: "route-20",
-    d: "M162 438H116V404H66V370H8",
+    id: "route-14",
+    tone: "muted",
+    revealOrder: 3,
+    points: [
+      [150, 632],
+      [150, 574],
+      [184, 574],
+      [184, 526],
+      [226, 526],
+    ],
+  },
+  {
+    id: "route-15",
+    tone: "strong",
+    revealOrder: 2,
+    points: [
+      [238, 8],
+      [238, 56],
+      [260, 56],
+      [260, 102],
+      [300, 102],
+    ],
+  },
+  {
+    id: "route-16",
     tone: "muted",
     revealOrder: 2,
+    points: [
+      [314, 8],
+      [314, 82],
+      [340, 82],
+      [340, 132],
+      [384, 132],
+    ],
   },
-  { id: "route-21", d: "M98 474H52V444H8", tone: "muted", revealOrder: 3 },
+  {
+    id: "route-17",
+    tone: "strong",
+    revealOrder: 2,
+    points: [
+      [374, 8],
+      [374, 62],
+      [404, 62],
+      [404, 108],
+      [450, 108],
+    ],
+  },
+  {
+    id: "route-18",
+    tone: "strong",
+    revealOrder: 3,
+    points: [
+      [454, 8],
+      [454, 74],
+      [492, 74],
+      [492, 118],
+      [548, 118],
+      [548, 150],
+      [632, 150],
+    ],
+  },
+  {
+    id: "route-21",
+    tone: "strong",
+    revealOrder: 2,
+    points: [
+      [632, 172],
+      [592, 172],
+      [592, 196],
+      [544, 196],
+    ],
+  },
   {
     id: "route-22",
-    d: "M164 542H122V578H82V632",
-    tone: "muted",
+    tone: "strong",
     revealOrder: 2,
+    points: [
+      [632, 300],
+      [584, 300],
+      [584, 326],
+      [528, 326],
+    ],
   },
   {
     id: "route-23",
-    d: "M152 548H184V584H218V632",
     tone: "muted",
     revealOrder: 2,
+    points: [
+      [632, 372],
+      [590, 372],
+      [590, 398],
+      [542, 398],
+    ],
   },
-  { id: "route-24", d: "M168 346H120V314H72", tone: "muted", revealOrder: 1 },
-  { id: "route-25", d: "M258 522H220V486H176", tone: "muted", revealOrder: 1 },
   {
-    id: "route-26",
-    d: "M224 554H250V580H284V632",
-    tone: "muted",
+    id: "route-24",
+    tone: "strong",
     revealOrder: 2,
+    points: [
+      [632, 426],
+      [602, 426],
+      [602, 448],
+      [566, 448],
+    ],
   },
-  { id: "route-27", d: "M542 552H578V526H632", tone: "muted", revealOrder: 2 },
-  { id: "route-28", d: "M570 594H594V612H632", tone: "muted", revealOrder: 3 },
   {
-    id: "route-29",
-    d: "M488 548H520V584H558V632",
+    id: "route-25",
     tone: "muted",
-    revealOrder: 2,
+    revealOrder: 3,
+    points: [
+      [632, 536],
+      [586, 536],
+      [586, 504],
+      [536, 504],
+    ],
+  },
+  {
+    id: "route-27",
+    tone: "muted",
+    revealOrder: 3,
+    points: [
+      [514, 632],
+      [514, 576],
+      [486, 576],
+      [486, 532],
+      [452, 532],
+    ],
+  },
+  {
+    id: "route-28",
+    tone: "strong",
+    revealOrder: 3,
+    points: [
+      [470, 632],
+      [470, 590],
+      [438, 590],
+      [438, 552],
+      [400, 552],
+    ],
   },
   {
     id: "route-30",
-    d: "M318 548H350V582H382V632",
+    tone: "strong",
+    revealOrder: 3,
+    points: [
+      [248, 632],
+      [248, 570],
+      [214, 570],
+      [214, 526],
+      [176, 526],
+    ],
+  },
+  {
+    id: "route-31",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [174, 226],
+      [220, 226],
+      [220, 250],
+      [270, 250],
+    ],
+  },
+  {
+    id: "route-32",
+    tone: "strong",
+    revealOrder: 1,
+    points: [
+      [192, 286],
+      [238, 286],
+      [238, 306],
+      [286, 306],
+    ],
+  },
+  {
+    id: "route-33",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [178, 398],
+      [228, 398],
+      [228, 370],
+      [282, 370],
+    ],
+  },
+  {
+    id: "route-34",
+    tone: "strong",
+    revealOrder: 1,
+    points: [
+      [214, 452],
+      [258, 452],
+      [258, 420],
+      [294, 420],
+    ],
+  },
+  {
+    id: "route-35",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [354, 184],
+      [400, 184],
+      [400, 210],
+      [452, 210],
+    ],
+  },
+  {
+    id: "route-36",
+    tone: "strong",
+    revealOrder: 1,
+    points: [
+      [368, 244],
+      [414, 244],
+      [414, 266],
+      [460, 266],
+    ],
+  },
+  {
+    id: "route-37",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [358, 412],
+      [406, 412],
+      [406, 448],
+      [454, 448],
+    ],
+  },
+  {
+    id: "route-38",
+    tone: "strong",
+    revealOrder: 1,
+    points: [
+      [390, 488],
+      [432, 488],
+      [432, 514],
+      [480, 514],
+    ],
+  },
+  {
+    id: "route-39",
     tone: "muted",
     revealOrder: 2,
+    points: [
+      [474, 178],
+      [518, 178],
+      [518, 200],
+      [560, 200],
+    ],
   },
-  { id: "route-31", d: "M470 354H506V384H552", tone: "muted", revealOrder: 1 },
-  { id: "route-32", d: "M350 476H388V510H410", tone: "muted", revealOrder: 1 },
-  { id: "route-33", d: "M548 360H592V330H632", tone: "muted", revealOrder: 2 },
-  { id: "route-34", d: "M526 248H566V218H608", tone: "muted", revealOrder: 1 },
-] as const;
+  {
+    id: "route-40",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [484, 344],
+      [528, 344],
+      [528, 366],
+      [570, 366],
+    ],
+  },
+  {
+    id: "route-41",
+    tone: "muted",
+    revealOrder: 2,
+    points: [
+      [100, 180],
+      [138, 180],
+      [138, 204],
+      [178, 204],
+    ],
+  },
+  {
+    id: "route-44",
+    tone: "muted",
+    revealOrder: 2,
+    points: [
+      [82, 248],
+      [126, 248],
+      [126, 272],
+      [188, 272],
+    ],
+  },
+  {
+    id: "route-45",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [188, 110],
+      [188, 170],
+      [214, 170],
+      [214, 230],
+      [246, 230],
+      [246, 290],
+    ],
+  },
+  {
+    id: "route-46",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [390, 118],
+      [390, 180],
+      [420, 180],
+      [420, 250],
+      [470, 250],
+      [470, 310],
+    ],
+  },
+  {
+    id: "route-47",
+    tone: "strong",
+    revealOrder: 1,
+    points: [
+      [190, 360],
+      [190, 420],
+      [230, 420],
+      [230, 500],
+      [270, 500],
+      [270, 590],
+    ],
+  },
+  {
+    id: "route-48",
+    tone: "muted",
+    revealOrder: 1,
+    points: [
+      [366, 360],
+      [366, 430],
+      [406, 430],
+      [406, 500],
+      [456, 500],
+      [456, 580],
+    ],
+  },
+] as const satisfies readonly RouteSeed[];
 
-const rawNodes = [
-  [294, 320, "diamond"],
-  [250, 282, "square"],
-  [210, 234, "port"],
-  [136, 198, "square"],
-  [8, 198, "circle"],
-  [312, 294, "diamond"],
-  [270, 196, "port"],
-  [226, 126, "square"],
-  [190, 8, "circle"],
-  [346, 300, "diamond"],
-  [392, 266, "square"],
-  [452, 222, "port"],
-  [520, 180, "square"],
-  [632, 180, "circle"],
-  [328, 346, "diamond"],
-  [374, 390, "square"],
-  [424, 450, "port"],
-  [466, 632, "circle"],
-  [346, 336, "diamond"],
-  [390, 378, "square"],
-  [448, 426, "port"],
-  [520, 488, "square"],
-  [632, 488, "circle"],
-  [170, 142, "cross"],
-  [72, 66, "square"],
-  [8, 66, "port"],
-  [158, 92, "diamond"],
-  [82, 8, "square"],
-  [214, 104, "cross"],
-  [252, 62, "square"],
-  [286, 8, "port"],
-  [150, 188, "port"],
-  [58, 132, "diamond"],
-  [8, 132, "circle"],
-  [166, 266, "cross"],
-  [118, 236, "square"],
-  [72, 236, "circle"],
-  [238, 96, "port"],
-  [204, 80, "circle"],
-  [308, 174, "cross"],
-  [244, 144, "circle"],
-  [486, 132, "port"],
-  [574, 64, "circle"],
-  [632, 64, "diamond"],
-  [472, 100, "cross"],
-  [430, 64, "square"],
-  [394, 8, "port"],
-  [492, 84, "diamond"],
-  [552, 8, "square"],
-  [548, 150, "port"],
-  [632, 122, "circle"],
-  [482, 186, "cross"],
-  [396, 156, "circle"],
-  [526, 292, "port"],
-  [632, 260, "diamond"],
-  [486, 148, "cross"],
-  [402, 120, "circle"],
-  [162, 438, "port"],
-  [66, 370, "circle"],
-  [8, 370, "diamond"],
-  [98, 474, "cross"],
-  [8, 444, "circle"],
-  [164, 542, "port"],
-  [82, 632, "circle"],
-  [152, 548, "diamond"],
-  [218, 632, "port"],
-  [168, 346, "cross"],
-  [72, 314, "circle"],
-  [258, 522, "port"],
-  [176, 486, "circle"],
-  [224, 554, "cross"],
-  [284, 632, "diamond"],
-  [542, 552, "port"],
-  [632, 526, "circle"],
-  [570, 594, "cross"],
-  [632, 612, "diamond"],
-  [488, 548, "port"],
-  [558, 632, "circle"],
-  [318, 548, "diamond"],
-  [382, 632, "port"],
-  [470, 354, "circle"],
-  [552, 384, "cross"],
-  [350, 476, "circle"],
-  [410, 510, "port"],
-  [548, 360, "diamond"],
-  [632, 330, "port"],
-  [526, 248, "circle"],
-  [608, 218, "cross"],
-] as const;
-
-export const heroTopologyNodes: readonly HeroTopologyNode[] = rawNodes.map(
-  ([x, y, shape], index) => ({
-    id: `node-${String(index + 1).padStart(2, "0")}`,
-    x,
-    y,
-    shape: shape as HeroTopologyNode["shape"],
+export const heroTopologyRoutes: readonly HeroTopologyRoute[] = routeSeeds.map(
+  ({ id, tone, revealOrder, points }) => ({
+    id,
+    tone,
+    revealOrder,
+    d: pointsToPath(points),
   }),
 );
+
+const nodeShapes = ["circle", "square", "diamond", "cross", "port"] as const;
+
+export const heroTopologyNodes: readonly HeroTopologyNode[] =
+  routeSeeds.flatMap((route, routeIndex) =>
+    route.points
+      .filter(
+        (_, pointIndex) =>
+          pointIndex === 0 ||
+          pointIndex === route.points.length - 1 ||
+          ((route.revealOrder <= 1 || route.tone === "strong") &&
+            pointIndex === Math.floor(route.points.length / 2)),
+      )
+      .map(([x, y], pointIndex) => ({
+        id: `node-${route.id}-${pointIndex}`,
+        x,
+        y,
+        shape: nodeShapes[(routeIndex + pointIndex) % nodeShapes.length],
+        revealOrder: route.revealOrder,
+      })),
+  );
 
 export const heroTopologyPackets: readonly HeroTopologyPacket[] = [
   {
     id: "packet-01",
-    x: 164,
-    y: 234,
-    axis: "horizontal",
+    x: 314,
+    y: 286,
+    axis: "vertical",
     routeId: "route-interface",
   },
-  { id: "packet-02", x: 226, y: 150, axis: "vertical", routeId: "route-api" },
+  { id: "packet-02", x: 226, y: 164, axis: "vertical", routeId: "route-api" },
   {
     id: "packet-03",
-    x: 474,
-    y: 222,
+    x: 468,
+    y: 248,
     axis: "horizontal",
     routeId: "route-services",
   },
-  { id: "packet-04", x: 424, y: 474, axis: "vertical", routeId: "route-data" },
+  { id: "packet-04", x: 382, y: 472, axis: "vertical", routeId: "route-data" },
   {
     id: "packet-05",
-    x: 470,
-    y: 426,
+    x: 474,
+    y: 420,
     axis: "horizontal",
     routeId: "route-automation",
   },
-  { id: "packet-06", x: 94, y: 104, axis: "horizontal", routeId: "route-06" },
-  { id: "packet-07", x: 430, y: 78, axis: "vertical", routeId: "route-14" },
-  { id: "packet-08", x: 92, y: 404, axis: "horizontal", routeId: "route-20" },
-  { id: "packet-09", x: 122, y: 594, axis: "vertical", routeId: "route-22" },
-  { id: "packet-10", x: 578, y: 538, axis: "vertical", routeId: "route-27" },
-  { id: "packet-11", x: 350, y: 600, axis: "vertical", routeId: "route-30" },
-  { id: "packet-12", x: 592, y: 342, axis: "vertical", routeId: "route-33" },
+  { id: "packet-07", x: 76, y: 234, axis: "horizontal", routeId: "route-09" },
+  { id: "packet-08", x: 80, y: 410, axis: "horizontal", routeId: "route-11" },
+  { id: "packet-10", x: 404, y: 78, axis: "vertical", routeId: "route-17" },
+  { id: "packet-11", x: 510, y: 118, axis: "horizontal", routeId: "route-18" },
+  { id: "packet-12", x: 606, y: 196, axis: "horizontal", routeId: "route-21" },
+  { id: "packet-14", x: 606, y: 448, axis: "horizontal", routeId: "route-24" },
+  { id: "packet-15", x: 486, y: 548, axis: "vertical", routeId: "route-27" },
+] as const;
+
+const initialSignalNodes = [
+  { x: 281, y: 8, filled: true },
+  { x: 281, y: 84 },
+  { x: 281, y: 174, filled: true },
+  { x: 314, y: 250 },
+  { x: 314, y: 330, filled: true },
+  { x: 314, y: 398 },
+  { x: 342, y: 500, filled: true },
+  { x: 342, y: 590 },
+  { x: 342, y: 632, filled: true },
+] as const;
+
+const interfaceSignalNodes = [
+  { x: 8, y: 276, filled: true },
+  { x: 142, y: 300 },
+  { x: 218, y: 328, filled: true },
+  { x: 306, y: 330 },
+] as const;
+
+const apiSignalNodes = [
+  { x: 204, y: 8, filled: true },
+  { x: 226, y: 148 },
+  { x: 278, y: 258, filled: true },
+  { x: 306, y: 314 },
+] as const;
+
+const servicesSignalNodes = [
+  { x: 632, y: 252, filled: true },
+  { x: 570, y: 252 },
+  { x: 504, y: 228, filled: true },
+  { x: 438, y: 248 },
+  { x: 326, y: 314, filled: true },
+] as const;
+
+const dataSignalNodes = [
+  { x: 414, y: 632, filled: true },
+  { x: 414, y: 568 },
+  { x: 382, y: 452, filled: true },
+  { x: 350, y: 396 },
+  { x: 324, y: 344, filled: true },
+] as const;
+
+const automationSignalNodes = [
+  { x: 632, y: 472, filled: true },
+  { x: 520, y: 472 },
+  { x: 450, y: 420, filled: true },
+  { x: 388, y: 372 },
+  { x: 334, y: 340, filled: true },
 ] as const;
 
 export const heroTopologyHotspots = [
@@ -293,116 +703,128 @@ export const heroTopologyHotspots = [
     summary: "A visible product action enters the system as a typed request.",
     routeId: "route-interface",
     feedPath: "M281 8V174H314V398H342V632",
+    signalNodes: initialSignalNodes,
   },
   {
     id: "accessible-state",
-    x: 136,
-    y: 198,
+    x: 142,
+    y: 300,
     label: "Accessible state",
     layer: "interface",
     summary: "Component state keeps interaction behavior clear and operable.",
     routeId: "route-interface",
-    feedPath: "M8 198H136V234H210V282H250V320H294",
+    feedPath: "M8 276H70V300H142V328H218V350H270V330H306",
+    signalNodes: interfaceSignalNodes,
   },
   {
     id: "editor-command",
-    x: 250,
-    y: 282,
+    x: 218,
+    y: 328,
     label: "Editor command",
     layer: "interface",
     summary: "Interface intent is separated from the work that fulfills it.",
     routeId: "route-interface",
-    feedPath: "M8 198H136V234H210V282H250V320H294",
+    feedPath: "M8 276H70V300H142V328H218V350H270V330H306",
+    signalNodes: interfaceSignalNodes,
   },
   {
     id: "typed-contract",
-    x: 270,
-    y: 196,
+    x: 278,
+    y: 258,
     label: "Typed contract",
     layer: "api",
     summary: "The request crosses a typed boundary before system work begins.",
     routeId: "route-api",
-    feedPath: "M190 8V126H226V196H270V250H312V294",
+    feedPath: "M204 8V82H226V148H250V212H278V258H306V314",
+    signalNodes: apiSignalNodes,
   },
   {
     id: "request-boundary",
-    x: 226,
-    y: 126,
+    x: 250,
+    y: 212,
     label: "Request boundary",
     layer: "api",
     summary: "Validation and access checks protect the application boundary.",
     routeId: "route-api",
-    feedPath: "M190 8V126H226V196H270V250H312V294",
+    feedPath: "M204 8V82H226V148H250V212H278V258H306V314",
+    signalNodes: apiSignalNodes,
   },
   {
     id: "workflow-service",
-    x: 452,
-    y: 222,
+    x: 438,
+    y: 248,
     label: "Workflow service",
     layer: "services",
     summary: "Application logic coordinates the next dependable action.",
     routeId: "route-services",
-    feedPath: "M632 180H520V222H452V266H392V300H346",
+    feedPath: "M632 252H570V228H504V248H438V284H382V314H326",
+    signalNodes: servicesSignalNodes,
   },
   {
     id: "access-policy",
-    x: 520,
-    y: 180,
+    x: 504,
+    y: 228,
     label: "Access policy",
     layer: "services",
     summary: "Service rules keep workflow and tenant context aligned.",
     routeId: "route-services",
-    feedPath: "M632 180H520V222H452V266H392V300H346",
+    feedPath: "M632 252H570V228H504V248H438V284H382V314H326",
+    signalNodes: servicesSignalNodes,
   },
   {
     id: "persistence-write",
-    x: 424,
-    y: 450,
+    x: 382,
+    y: 452,
     label: "Persistence write",
     layer: "data",
     summary: "Relational data records the durable result of the workflow.",
     routeId: "route-data",
-    feedPath: "M466 632V516H424V450H374V390H328V346",
+    feedPath: "M414 632V568V514H382V452H350V396H324V344",
+    signalNodes: dataSignalNodes,
   },
   {
     id: "read-model",
-    x: 374,
-    y: 390,
+    x: 350,
+    y: 396,
     label: "Read model",
     layer: "data",
     summary: "Stored state is shaped for the product surface that reads it.",
     routeId: "route-data",
-    feedPath: "M466 632V516H424V450H374V390H328V346",
+    feedPath: "M414 632V568V514H382V452H350V396H324V344",
+    signalNodes: dataSignalNodes,
   },
   {
     id: "background-trigger",
     x: 520,
-    y: 488,
+    y: 472,
     label: "Background trigger",
     layer: "automation",
     summary: "A background trigger continues work beyond the request cycle.",
     routeId: "route-automation",
-    feedPath: "M632 488H520V426H448V378H390V336H346",
+    feedPath: "M632 472H520V420H450V372H388V340H334",
+    signalNodes: automationSignalNodes,
   },
   {
     id: "release-pipeline",
-    x: 448,
-    y: 426,
+    x: 450,
+    y: 420,
     label: "Release pipeline",
     layer: "automation",
     summary: "Tests, build checks, and deployment keep delivery reliable.",
     routeId: "route-automation",
-    feedPath: "M632 488H520V426H448V378H390V336H346",
+    feedPath: "M632 472H520V420H450V372H388V340H334",
+    signalNodes: automationSignalNodes,
   },
   {
     id: "observability-signal",
     x: 632,
-    y: 488,
+    y: 472,
     label: "Observability signal",
     layer: "automation",
     summary: "Monitoring makes operational state visible after release.",
     routeId: "route-automation",
-    feedPath: "M632 488H520V426H448V378H390V336H346",
+    feedPath: "M632 472H520V420H450V372H388V340H334",
+    signalNodes: automationSignalNodes,
   },
 ] as const satisfies readonly HeroTopologyHotspot[];
 

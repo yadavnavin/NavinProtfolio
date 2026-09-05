@@ -308,10 +308,8 @@ export function SpecimenHero() {
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      const canDrag = window.matchMedia(
-        "(min-width: 64rem) and (pointer: fine)",
-      ).matches;
-      if (!canDrag || scrollLockedRef.current) return;
+      const canDrag = window.matchMedia("(min-width: 64rem)").matches;
+      if (!canDrag) return;
 
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
@@ -324,7 +322,7 @@ export function SpecimenHero() {
 
   const handlePointerMove = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!dragRef.current || scrollLockedRef.current) return;
+      if (!dragRef.current) return;
       updateDragPosition(event.clientX, event.clientY);
     },
     [updateDragPosition],
@@ -341,6 +339,10 @@ export function SpecimenHero() {
 
       if (snappedHotspotRef.current) {
         positionLensAtHotspot(snappedHotspotRef.current, true);
+      }
+
+      if (scrollLockedRef.current) {
+        activeLayerIndexRef.current = -1;
       }
     },
     [positionLensAtHotspot],
@@ -753,7 +755,12 @@ export function SpecimenHero() {
       };
 
       introCompleteRef.current = false;
-      if (reduceMotion || window.scrollY > 8) {
+      if (!reduceMotion && window.scrollY > 8) {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        ScrollTrigger.update();
+      }
+
+      if (reduceMotion) {
         finishIntro();
       } else if (window.matchMedia("(min-width: 64rem)").matches) {
         playIntro();
@@ -802,6 +809,8 @@ export function SpecimenHero() {
             onUpdate: (self) => {
               const locked = self.isActive && self.progress > 0.015;
               scrollLockedRef.current = locked;
+
+              if (dragRef.current) return;
 
               if (locked && !snappedHotspotRef.current) {
                 const fallback = lastHotspotRef.current;
@@ -924,6 +933,7 @@ export function SpecimenHero() {
           <SystemInspectionMap
             activeRouteId={visibleHotspot.routeId}
             feedPath={visibleHotspot.feedPath}
+            signalNodes={visibleHotspot.signalNodes}
           />
 
           <p className="inspection-instruction">
@@ -971,6 +981,7 @@ export function SpecimenHero() {
               <SystemInspectionMap
                 activeRouteId={visibleHotspot.routeId}
                 feedPath={visibleHotspot.feedPath}
+                signalNodes={visibleHotspot.signalNodes}
                 magnified
               />
             </div>

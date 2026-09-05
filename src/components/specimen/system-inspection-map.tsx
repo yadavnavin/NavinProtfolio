@@ -1,5 +1,6 @@
 import {
   HERO_TOPOLOGY_VIEWBOX,
+  type HeroTopologySignalNode,
   heroTopologyNodes,
   heroTopologyPackets,
   heroTopologyRoutes,
@@ -8,12 +9,14 @@ import {
 type SystemInspectionMapProps = {
   activeRouteId: string;
   feedPath: string;
+  signalNodes: readonly HeroTopologySignalNode[];
   magnified?: boolean;
 };
 
 export function SystemInspectionMap({
   activeRouteId,
   feedPath,
+  signalNodes,
   magnified = false,
 }: SystemInspectionMapProps) {
   return (
@@ -67,9 +70,10 @@ export function SystemInspectionMap({
                 data-map-node=""
                 data-node-x={node.x}
                 data-node-y={node.y}
+                data-reveal-order={node.revealOrder}
                 cx={node.x}
                 cy={node.y}
-                r="3.2"
+                r="2.8"
               />
             );
           }
@@ -81,10 +85,11 @@ export function SystemInspectionMap({
                 data-map-node=""
                 data-node-x={node.x}
                 data-node-y={node.y}
-                x={node.x - 3}
-                y={node.y - 3}
-                width="6"
-                height="6"
+                data-reveal-order={node.revealOrder}
+                x={node.x - 2.6}
+                y={node.y - 2.6}
+                width="5.2"
+                height="5.2"
                 transform={`rotate(45 ${node.x} ${node.y})`}
               />
             );
@@ -97,7 +102,8 @@ export function SystemInspectionMap({
                 data-map-node=""
                 data-node-x={node.x}
                 data-node-y={node.y}
-                d={`M${node.x - 3} ${node.y - 3}L${node.x + 3} ${node.y + 3}M${node.x + 3} ${node.y - 3}L${node.x - 3} ${node.y + 3}`}
+                data-reveal-order={node.revealOrder}
+                d={`M${node.x - 2.2} ${node.y - 2.2}L${node.x + 2.2} ${node.y + 2.2}M${node.x + 2.2} ${node.y - 2.2}L${node.x - 2.2} ${node.y + 2.2}`}
               />
             );
           }
@@ -109,17 +115,19 @@ export function SystemInspectionMap({
                   data-map-node=""
                   data-node-x={node.x}
                   data-node-y={node.y}
+                  data-reveal-order={node.revealOrder}
                   cx={node.x}
                   cy={node.y}
-                  r="4.5"
+                  r="3.8"
                 />
                 <circle
                   data-map-node=""
                   data-node-x={node.x}
                   data-node-y={node.y}
+                  data-reveal-order={node.revealOrder}
                   cx={node.x}
                   cy={node.y}
-                  r="1"
+                  r="0.8"
                 />
               </g>
             );
@@ -131,10 +139,11 @@ export function SystemInspectionMap({
               data-map-node=""
               data-node-x={node.x}
               data-node-y={node.y}
-              x={node.x - 3}
-              y={node.y - 3}
-              width="6"
-              height="6"
+              data-reveal-order={node.revealOrder}
+              x={node.x - 2.6}
+              y={node.y - 2.6}
+              width="5.2"
+              height="5.2"
             />
           );
         })}
@@ -177,12 +186,26 @@ export function SystemInspectionMap({
       </g>
 
       {!magnified ? (
-        <path
-          className="system-map-current"
-          data-current-map=""
-          d={feedPath}
-          pathLength="1"
-        />
+        <g className="system-map-signal">
+          <path
+            className="system-map-current"
+            data-current-map=""
+            d={feedPath}
+            pathLength="1"
+          />
+          {signalNodes.map((node) => (
+            <circle
+              key={`${node.x}-${node.y}`}
+              className="system-map-current-node"
+              data-map-node=""
+              data-current-node=""
+              data-current-node-filled={node.filled ? "" : undefined}
+              cx={node.x}
+              cy={node.y}
+              r={node.filled ? 3.4 : 3.8}
+            />
+          ))}
+        </g>
       ) : null}
     </svg>
   );

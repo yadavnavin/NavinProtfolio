@@ -168,10 +168,11 @@ button {
 }
 
 .specimen-experience {
+  --hero-height: min(57.25rem, max(54rem, calc(100svh - 4.75rem)));
   --hero-top-space: clamp(8.5rem, 10.7vw, 10.65rem);
 
   position: relative;
-  min-height: max(54rem, calc(100svh - 4.75rem));
+  min-height: var(--hero-height);
   padding-top: var(--hero-top-space);
   border-bottom: 1px solid var(--rule);
 }
@@ -179,7 +180,7 @@ button {
 .specimen-stage {
   position: relative;
   width: 100%;
-  min-height: calc(max(54rem, calc(100svh - 4.75rem)) - var(--hero-top-space));
+  min-height: calc(var(--hero-height) - var(--hero-top-space));
   background: var(--paper);
 }
 
@@ -189,10 +190,12 @@ button {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   column-gap: clamp(1rem, 2vw, 2.25rem);
+  pointer-events: none;
 }
 
 .hero-copy {
   grid-column: 1 / span 5;
+  pointer-events: auto;
 }
 
 .hero-copy h1 {
@@ -267,11 +270,12 @@ button {
 
 .specimen-field {
   position: absolute;
-  top: calc((var(--hero-top-space) * -1) + 1.5rem);
-  right: 1%;
-  width: min(60.5%, 55.75rem);
+  top: calc(var(--hero-top-space) * -1 + 2rem);
+  left: 64.5%;
+  width: min(68%, 57.5rem);
   height: auto;
-  aspect-ratio: 1.31;
+  aspect-ratio: 1.37;
+  transform: translateX(-48.75%);
 }
 
 .system-map {
@@ -292,7 +296,7 @@ button {
 }
 
 .system-map-route-muted {
-  stroke: color-mix(in srgb, var(--rule) 72%, var(--rule-strong));
+  stroke: color-mix(in srgb, var(--rule) 54%, var(--rule-strong));
   stroke-dasharray: 1.5 4;
   stroke-width: 0.82;
 }
@@ -302,7 +306,16 @@ button {
   stroke-width: 0.82;
 }
 
+.system-map-route[data-reveal-order="2"] {
+  opacity: 0.84;
+}
+
+.system-map-route[data-reveal-order="3"] {
+  opacity: 0.68;
+}
+
 .system-map-route[data-route-active] {
+  opacity: 1;
   stroke: var(--rule-strong);
   stroke-width: 1.05;
 }
@@ -331,6 +344,14 @@ button {
   stroke-width: 0.9;
 }
 
+.system-map-nodes [data-reveal-order="2"] {
+  opacity: 0.86;
+}
+
+.system-map-nodes [data-reveal-order="3"] {
+  opacity: 0.7;
+}
+
 .system-map-packets rect {
   fill: var(--rule-strong);
   opacity: 0.66;
@@ -349,6 +370,17 @@ button {
   stroke-dasharray: 1;
   stroke-dashoffset: 0;
   stroke-width: 1.55;
+}
+
+.system-map-current-node {
+  fill: var(--paper);
+  stroke: var(--signal);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.system-map-current-node[data-current-node-filled] {
+  fill: var(--signal);
 }
 
 .topology-hotspots {
@@ -1371,7 +1403,7 @@ button {
 
 @media (max-width: 79.999rem) {
   .specimen-experience {
-    min-height: 54rem;
+    --hero-height: 54rem;
   }
 
   .hero-copy {
@@ -1383,8 +1415,7 @@ button {
   }
 
   .specimen-field {
-    right: 0;
-    width: min(52%, 32rem);
+    width: min(71%, 52rem);
   }
 
   .system-chapter {
@@ -1431,8 +1462,9 @@ button {
 
   .specimen-field {
     top: -1.4rem;
-    width: min(44vw, 25rem);
+    width: min(55vw, 43rem);
     height: auto;
+    aspect-ratio: 1.42;
   }
 
   .inspection-probe {
@@ -1485,10 +1517,12 @@ button {
     position: relative;
     top: auto;
     right: auto;
+    left: auto;
     width: min(100%, 38rem);
     height: auto;
     aspect-ratio: 1;
     margin: 4rem auto 0;
+    transform: none;
   }
 
   .inspection-probe {
